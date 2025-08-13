@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VivOME – A Living Joint Latent Atlas for Single-Cell Omics</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body {
@@ -45,6 +44,16 @@
       height: 100%;
       display: block;
     }
+    #tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      pointer-events: none;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -54,104 +63,99 @@
   </div>
   <div class="right">
     <canvas id="scene"></canvas>
+    <div id="tooltip"></div>
   </div>
 
   <script>
     const canvas = document.getElementById('scene');
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    const scene = new THREE.Scene();
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
 
     function resize() {
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-      renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
     }
-
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.z = 5;
-
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(3, 3, 5);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-
-    const spheres = [];
-    const glowTexture = new THREE.TextureLoader().load(
-      'https://threejs.org/examples/textures/sprites/glow.png'
-    );
-    const sphereInfo = [
-      { pos: new THREE.Vector3(-0.5, 1, 0), color: 0xff6b6b, url: 'documentation.html' },
-      { pos: new THREE.Vector3(0.5, 0, 0), color: 0xf0a500, url: 'visual.html' },
-      { pos: new THREE.Vector3(-0.5, -1, 0), color: 0x4ecdc4, url: 'code.html' },
-    ];
-
-    const group = new THREE.Group();
-    sphereInfo.forEach(info => {
-      const geom = new THREE.SphereGeometry(0.2, 32, 32);
-      const mat = new THREE.MeshStandardMaterial({
-        color: info.color,
-        emissive: info.color,
-        emissiveIntensity: 1,
-      });
-      const mesh = new THREE.Mesh(geom, mat);
-      mesh.position.copy(info.pos);
-      const glow = new THREE.Sprite(
-        new THREE.SpriteMaterial({
-          map: glowTexture,
-          color: info.color,
-          transparent: true,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false,
-        })
-      );
-      glow.scale.set(0.8, 0.8, 1);
-      mesh.add(glow);
-      mesh.add(new THREE.PointLight(info.color, 1, 2));
-      mesh.userData.url = info.url;
-      spheres.push(mesh);
-      group.add(mesh);
-    });
-
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-    for (let i = 0; i < sphereInfo.length - 1; i++) {
-      const points = [sphereInfo[i].pos, sphereInfo[i + 1].pos];
-      const geo = new THREE.BufferGeometry().setFromPoints(points);
-      group.add(new THREE.Line(geo, lineMaterial));
-    }
-
-    group.scale.set(0.8, 0.8, 0.8);
-    scene.add(group);
-
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    function onClick(event) {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(spheres);
-      if (intersects.length > 0) {
-        window.location.href = intersects[0].object.userData.url;
-      }
-    }
-    canvas.addEventListener('click', onClick);
     window.addEventListener('resize', resize);
     resize();
 
+    const circles = [
+      { x: canvas.width * 0.3, y: canvas.height * 0.25, r: 40, color: '#ff6b6b', url: 'documentation.html', vx: 0.2, vy: 0.15 },
+      { x: canvas.width * 0.7, y: canvas.height * 0.5,  r: 40, color: '#f0a500', url: 'visual.html',        vx: -0.15, vy: 0.1 },
+      { x: canvas.width * 0.3, y: canvas.height * 0.75, r: 40, color: '#4ecdc4', url: 'code.html',          vx: 0.1, vy: -0.2 },
+    ];
+
+    function drawCircle(c, time, index) {
+      const radius = c.r * (1 + 0.1 * Math.sin(time + index));
+      ctx.save();
+      ctx.beginPath();
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = c.color;
+      ctx.fillStyle = c.color;
+      ctx.arc(c.x, c.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      c.radius = radius; // store for hover detection
+    }
+
+    function update(c) {
+      c.x += c.vx;
+      c.y += c.vy;
+      const r = c.radius || c.r;
+      if (c.x - r < 0 || c.x + r > canvas.width) c.vx *= -1;
+      if (c.y - r < 0 || c.y + r > canvas.height) c.vy *= -1;
+    }
+
     function animate() {
-      requestAnimationFrame(animate);
-      group.rotation.y += 0.01;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       const time = Date.now() * 0.002;
-      spheres.forEach((s, i) => {
-        const scale = 1 + 0.1 * Math.sin(time + i);
-        s.scale.set(scale, scale, scale);
+      circles.forEach((c, i) => {
+        update(c);
+        drawCircle(c, time, i);
       });
-      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
     }
     animate();
+
+    function getMousePos(evt) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      const pos = getMousePos(e);
+      const hit = circles.find(c => {
+        const dx = pos.x - c.x;
+        const dy = pos.y - c.y;
+        return Math.sqrt(dx*dx + dy*dy) <= c.radius;
+      });
+      if (hit) {
+        tooltip.style.display = 'block';
+        tooltip.textContent = hit.url;
+        tooltip.style.left = `${pos.x + 10}px`;
+        tooltip.style.top = `${pos.y + 10}px`;
+      } else {
+        tooltip.style.display = 'none';
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const pos = getMousePos(e);
+      const hit = circles.find(c => {
+        const dx = pos.x - c.x;
+        const dy = pos.y - c.y;
+        return Math.sqrt(dx*dx + dy*dy) <= c.radius;
+      });
+      if (hit) {
+        window.location.href = hit.url;
+      }
+    });
   </script>
 </body>
 </html>
