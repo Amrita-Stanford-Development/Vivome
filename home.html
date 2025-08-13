@@ -39,7 +39,6 @@
       /* Home section */
       #home {
         color: #fff;
-        background: #000;
       }
       #home h1 {
         font-size: 7rem;
@@ -76,7 +75,6 @@
 
       /* Documentation section */
       #documentation {
-        background: #000;
         color: #fff;
       }
       #documentation .content {
@@ -95,22 +93,6 @@
         scroll-snap-align: unset;
       }
 
-      /* Visuals section */
-      #visuals {
-        background: #fff;
-        color: #0e0e0e;
-      }
-      #visuals .content {
-        max-width: 900px;
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 12px;
-        padding: 2rem;
-        backdrop-filter: blur(4px);
-      }
-      #visuals h2 {
-        color: #00d2ff;
-        margin-top: 0;
-      }
 
       /* Background canvas */
       #protein-canvas {
@@ -191,18 +173,11 @@
             discoveries in immunology, systems biology, and beyond.
           </p>
         </section>
-      </div>
-    </section>
-
-    <section id="visuals">
-      <div class="content">
         <section>
-          <h2>Visuals</h2>
-          <p>Visual content will be added here.</p>
+          <p><a href="visuals.html" style="color: #00d2ff;">View Visuals</a></p>
         </section>
       </div>
     </section>
-
     <script>
       const canvas = document.getElementById("protein-canvas");
       const ctx = canvas.getContext("2d");
