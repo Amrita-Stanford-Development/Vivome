@@ -11,8 +11,8 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #0e0e0e;
-      background: #f7f7f7;
+      color: #fff;
+      background: #000;
       overflow-x: hidden;
     }
 
@@ -111,7 +111,8 @@
           vx: (Math.random() - 0.5) * 0.3,
           vy: (Math.random() - 0.5) * 0.3,
           r: 8 + Math.random() * 4,
-          color: colors[Math.floor(Math.random() * colors.length)]
+          color: colors[Math.floor(Math.random() * colors.length)],
+          phase: Math.random() * Math.PI * 2
         });
       }
     }
@@ -120,6 +121,7 @@
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const time = performance.now() * 0.002;
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.x += p.vx;
@@ -130,10 +132,13 @@
         const grad = ctx.createRadialGradient(p.x - p.r / 3, p.y - p.r / 3, p.r / 5, p.x, p.y, p.r);
         grad.addColorStop(0, '#fff');
         grad.addColorStop(1, p.color);
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 20 + 10 * Math.sin(time + p.phase);
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
+        ctx.shadowBlur = 0;
 
         for (let j = i + 1; j < particles.length; j++) {
           const q = particles[j];
@@ -141,7 +146,7 @@
           const dy = p.y - q.y;
           const dist = Math.hypot(dx, dy);
           if (dist < 120) {
-            ctx.strokeStyle = p.color;
+            ctx.strokeStyle = '#fff';
             ctx.globalAlpha = 0.3;
             ctx.lineWidth = 1;
             ctx.beginPath();
