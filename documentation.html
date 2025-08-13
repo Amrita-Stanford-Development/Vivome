@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vivome – A Living Joint Latent Atlas for Single-Cell Omics</title>
+  <title>Vivome Documentation – A Living Joint Latent Atlas for Single-Cell Omics</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -73,6 +73,24 @@
       background: #3a7bd5;
       transform: translateY(-2px);
     }
+
+    main {
+      max-width: 900px;
+      margin: -5vh auto 5vh auto;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 2rem;
+      backdrop-filter: blur(4px);
+    }
+
+    h2 {
+      color: #00d2ff;
+      margin-top: 0;
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
   </style>
 </head>
 <body>
@@ -82,10 +100,52 @@
     <h1>Vivome</h1>
     <p>A Living Joint Latent Atlas for Single-Cell Omics</p>
     <div class="button-group">
-      <a href="documentation.html" class="btn">Documentation</a>
+      <a href="home.html" class="btn">Home</a>
       <a href="visuals.html" class="btn">Visuals</a>
     </div>
   </header>
+
+  <main>
+    <section>
+      <h2>Overview</h2>
+      <p>
+        Vivome is an open, evolving platform designed to integrate three major single-cell data modalities –
+        transcriptomics (scRNA-seq), proteomics, and chromatin accessibility (scATAC-seq) – into a single, unified
+        coordinate system. By anchoring everything to a rich RNA reference, Vivome allows seamless projection of
+        unpaired datasets, enabling researchers to explore cellular identity from multiple biological angles without
+        requiring matched multi-omic experiments.
+      </p>
+    </section>
+
+    <section>
+      <h2>Why It Matters</h2>
+      <p>
+        Each single-cell modality captures only part of a cell’s story. RNA tells us what genes are expressed,
+        proteomics reveals the proteins actually present, and ATAC-seq shows how the genome is accessible.
+        Vivome bridges these views, aligning them so that researchers can uncover patterns, validate discoveries,
+        and transfer cell type labels across datasets with minimal or even zero prior annotation.
+      </p>
+    </section>
+
+    <section>
+      <h2>What Makes Vivome Unique</h2>
+      <ul>
+        <li><strong>Fully Single-Cell Resolution:</strong> Every point represents a real single cell across RNA, protein, or chromatin data.</li>
+        <li><strong>Unpaired Data Integration:</strong> Aligns datasets without requiring the same cells to be measured across modalities.</li>
+        <li><strong>Cross-Modality Coupling:</strong> Ensures proteomic and ATAC data are aligned to each other, not just to RNA.</li>
+        <li><strong>Open and Versioned:</strong> Provides pretrained encoders and reference embeddings so the atlas grows with new data.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Intended Impact</h2>
+      <p>
+        Vivome will enable scientists worldwide to project their own single-cell datasets into a shared atlas,
+        instantly contextualizing them with rich multi-omic reference data. By removing barriers to cross-modality
+        analysis, this platform will accelerate biological discoveries in immunology, systems biology, and beyond.
+      </p>
+    </section>
+  </main>
 
   <script>
     const canvas = document.getElementById('protein-canvas');
