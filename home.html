@@ -9,26 +9,18 @@
     *, *::before, *::after {
       box-sizing: border-box;
     }
+    html {
+      scroll-behavior: smooth;
+    }
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
-      color: #fff;
-      background: #000;
+      scroll-snap-type: y mandatory;
       overflow-x: hidden;
     }
-
-    /* Background canvas */
-    #protein-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }
-
-    header {
-      height: 100vh;
+    section {
+      min-height: 100vh;
+      scroll-snap-align: start;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -37,7 +29,12 @@
       padding: 0 1rem;
     }
 
-    header h1 {
+    /* Home section */
+    #home {
+      color: #fff;
+      background: #000;
+    }
+    #home h1 {
       font-size: 7rem;
       margin: 0 0 1rem 0;
       font-weight: 800;
@@ -47,7 +44,6 @@
       text-shadow: 0 0 6px rgba(0,210,255,0.4), 0 0 12px rgba(0,210,255,0.2);
       animation: halo 6s ease-in-out infinite;
     }
-
     @keyframes halo {
       0%, 100% {
         text-shadow: 0 0 6px rgba(0,210,255,0.4), 0 0 12px rgba(0,210,255,0.2);
@@ -56,8 +52,7 @@
         text-shadow: 0 0 15px rgba(0,210,255,0.7), 0 0 25px rgba(0,210,255,0.5);
       }
     }
-
-    header p {
+    #home p {
       font-size: 2rem;
       max-width: 700px;
       margin: 0 auto;
@@ -66,7 +61,6 @@
     .button-group {
       margin-top: 2rem;
     }
-
     .btn {
       display: inline-block;
       padding: 0.75rem 1.5rem;
@@ -79,26 +73,98 @@
       text-decoration: none;
       transition: background 0.3s, transform 0.3s;
     }
-
     .btn:hover {
       background: #3a7bd5;
       transform: translateY(-2px);
+    }
+
+    /* Documentation section */
+    #documentation {
+      background: #f7f7f7;
+      color: #0e0e0e;
+    }
+    #documentation .content {
+      max-width: 900px;
+      background: rgba(0,0,0,0.05);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    #documentation h2 {
+      color: #00d2ff;
+      margin-top: 0;
+    }
+    #documentation section {
+      margin-bottom: 2rem;
+    }
+
+    /* Visuals section */
+    #visuals {
+      background: #000;
+      color: #fff;
+      transition: background 0.2s linear, color 0.2s linear;
+    }
+    #visuals .content {
+      max-width: 900px;
+      background: rgba(0,0,0,0.05);
+      border-radius: 12px;
+      padding: 2rem;
+      backdrop-filter: blur(4px);
+    }
+    #visuals h2 {
+      color: #00d2ff;
+      margin-top: 0;
     }
   </style>
 </head>
 <body>
   <canvas id="protein-canvas"></canvas>
 
-  <header>
+  <section id="home">
     <h1>Vivome</h1>
     <p>A Living Joint Latent Atlas for Single-Cell Omics</p>
     <div class="button-group">
-      <a href="documentation.html" class="btn">Documentation</a>
-      <a href="visuals.html" class="btn">Visuals</a>
+      <a href="#documentation" class="btn">Documentation</a>
+      <a href="#visuals" class="btn">Visuals</a>
     </div>
-  </header>
+  </section>
+
+  <section id="documentation">
+    <div class="content">
+      <section>
+        <h2>Overview</h2>
+        <p>Vivome is an open, evolving platform designed to integrate three major single-cell data modalities – transcriptomics (scRNA-seq), proteomics, and chromatin accessibility (scATAC-seq) – into a single, unified coordinate system. By anchoring everything to a rich RNA reference, Vivome allows seamless projection of unpaired datasets, enabling researchers to explore cellular identity from multiple biological angles without requiring matched multi-omic experiments.</p>
+      </section>
+      <section>
+        <h2>Why It Matters</h2>
+        <p>Each single-cell modality captures only part of a cell’s story. RNA tells us what genes are expressed, proteomics reveals the proteins actually present, and ATAC-seq shows how the genome is accessible. Vivome bridges these views, aligning them so that researchers can uncover patterns, validate discoveries, and transfer cell type labels across datasets with minimal or even zero prior annotation.</p>
+      </section>
+      <section>
+        <h2>What Makes Vivome Unique</h2>
+        <ul>
+          <li><strong>Fully Single-Cell Resolution:</strong> Every point represents a real single cell across RNA, protein, or chromatin data.</li>
+          <li><strong>Unpaired Data Integration:</strong> Aligns datasets without requiring the same cells to be measured across modalities.</li>
+          <li><strong>Cross-Modality Coupling:</strong> Ensures proteomic and ATAC data are aligned to each other, not just to RNA.</li>
+          <li><strong>Open and Versioned:</strong> Provides pretrained encoders and reference embeddings so the atlas grows with new data.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Intended Impact</h2>
+        <p>Vivome will enable scientists worldwide to project their own single-cell datasets into a shared atlas, instantly contextualizing them with rich multi-omic reference data. By removing barriers to cross-modality analysis, this platform will accelerate biological discoveries in immunology, systems biology, and beyond.</p>
+      </section>
+    </div>
+  </section>
+
+  <section id="visuals">
+    <div class="content">
+      <section>
+        <h2>Visuals</h2>
+        <p>Visual content will be added here.</p>
+      </section>
+    </div>
+  </section>
 
   <script>
+    // Background particles
     const canvas = document.getElementById('protein-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -170,6 +236,21 @@
       requestAnimationFrame(draw);
     }
     draw();
+
+    // Background transition for visuals section
+    const visuals = document.getElementById('visuals');
+
+    function handleScroll() {
+      const start = visuals.offsetTop - window.innerHeight;
+      const progress = Math.min(Math.max((window.scrollY - start) / window.innerHeight, 0), 1);
+      const value = Math.round(255 * progress);
+      visuals.style.backgroundColor = `rgb(${value}, ${value}, ${value})`;
+      visuals.style.color = value < 128 ? '#fff' : '#000';
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
   </script>
 </body>
 </html>
+
