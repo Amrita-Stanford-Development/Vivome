@@ -5,50 +5,88 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vivome – A Living Joint Latent Atlas for Single-Cell Omics</title>
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
       margin: 0;
-      padding: 0;
-      background-color: #fafafa;
-      color: #333;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #f0f4f8;
+      background: #0e0e0e;
+      overflow-x: hidden;
     }
+
+    /* Background canvas */
+    #protein-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
     header {
-      background: #0066cc;
-      color: white;
-      padding: 1.5rem;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
+      padding: 0 1rem;
     }
+
     header h1 {
-      margin: 0;
-      font-size: 2rem;
+      font-size: 5rem;
+      margin: 0 0 1rem 0;
+      font-weight: 800;
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 15px rgba(0,210,255,0.6);
     }
+
+    header p {
+      font-size: 1.5rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
     main {
       max-width: 900px;
-      margin: auto;
+      margin: -5vh auto 5vh auto;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
       padding: 2rem;
+      backdrop-filter: blur(4px);
     }
+
     h2 {
-      color: #0066cc;
+      color: #00d2ff;
+      margin-top: 0;
     }
+
     section {
       margin-bottom: 2rem;
     }
   </style>
 </head>
 <body>
+  <canvas id="protein-canvas"></canvas>
+
   <header>
     <h1>Vivome</h1>
     <p>A Living Joint Latent Atlas for Single-Cell Omics</p>
   </header>
+
   <main>
     <section>
       <h2>Overview</h2>
       <p>
-        Vivome is an open, evolving platform designed to integrate three major single-cell data modalities – 
-        transcriptomics (scRNA-seq), proteomics, and chromatin accessibility (scATAC-seq) – into a single, unified 
-        coordinate system. By anchoring everything to a rich RNA reference, Vivome allows seamless projection of 
-        unpaired datasets, enabling researchers to explore cellular identity from multiple biological angles without 
+        Vivome is an open, evolving platform designed to integrate three major single-cell data modalities –
+        transcriptomics (scRNA-seq), proteomics, and chromatin accessibility (scATAC-seq) – into a single, unified
+        coordinate system. By anchoring everything to a rich RNA reference, Vivome allows seamless projection of
+        unpaired datasets, enabling researchers to explore cellular identity from multiple biological angles without
         requiring matched multi-omic experiments.
       </p>
     </section>
@@ -56,9 +94,9 @@
     <section>
       <h2>Why It Matters</h2>
       <p>
-        Each single-cell modality captures only part of a cell’s story. RNA tells us what genes are expressed, 
-        proteomics reveals the proteins actually present, and ATAC-seq shows how the genome is accessible. 
-        Vivome bridges these views, aligning them so that researchers can uncover patterns, validate discoveries, 
+        Each single-cell modality captures only part of a cell’s story. RNA tells us what genes are expressed,
+        proteomics reveals the proteins actually present, and ATAC-seq shows how the genome is accessible.
+        Vivome bridges these views, aligning them so that researchers can uncover patterns, validate discoveries,
         and transfer cell type labels across datasets with minimal or even zero prior annotation.
       </p>
     </section>
@@ -76,11 +114,71 @@
     <section>
       <h2>Intended Impact</h2>
       <p>
-        Vivome will enable scientists worldwide to project their own single-cell datasets into a shared atlas, 
-        instantly contextualizing them with rich multi-omic reference data. By removing barriers to cross-modality 
+        Vivome will enable scientists worldwide to project their own single-cell datasets into a shared atlas,
+        instantly contextualizing them with rich multi-omic reference data. By removing barriers to cross-modality
         analysis, this platform will accelerate biological discoveries in immunology, systems biology, and beyond.
       </p>
     </section>
   </main>
+
+  <script>
+    const canvas = document.getElementById('protein-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function initParticles() {
+      particles = [];
+      const count = Math.floor((canvas.width + canvas.height) / 20);
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5
+        });
+      }
+    }
+    initParticles();
+    window.addEventListener('resize', initParticles);
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,210,255,0.8)';
+        ctx.fill();
+      }
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i];
+          const b = particles[j];
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          if (dist < 120) {
+            ctx.strokeStyle = 'rgba(58,123,213,' + (1 - dist / 120) + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
 </body>
 </html>
