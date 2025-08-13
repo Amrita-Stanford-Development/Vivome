@@ -11,8 +11,8 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #f0f4f8;
-      background: #0e0e0e;
+      color: #0e0e0e;
+      background: #f7f7f7;
       overflow-x: hidden;
     }
 
@@ -56,7 +56,7 @@
     main {
       max-width: 900px;
       margin: 5vh auto;
-      background: rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.05);
       border-radius: 12px;
       padding: 2rem;
       backdrop-filter: blur(4px);
@@ -103,14 +103,14 @@
 
     function initParticles() {
       particles = [];
-      const count = Math.floor((canvas.width + canvas.height) / 25);
+      const count = Math.floor((canvas.width + canvas.height) / 50);
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          r: 3 + Math.random() * 3,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          r: 8 + Math.random() * 4,
           color: colors[Math.floor(Math.random() * colors.length)]
         });
       }
@@ -120,7 +120,8 @@
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const p of particles) {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
@@ -133,6 +134,23 @@
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const q = particles[j];
+          const dx = p.x - q.x;
+          const dy = p.y - q.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 120) {
+            ctx.strokeStyle = p.color;
+            ctx.globalAlpha = 0.3;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+        }
       }
       requestAnimationFrame(draw);
     }
