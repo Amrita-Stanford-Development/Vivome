@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vivome – A Living Joint Latent Atlas for Single-Cell Omics</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -19,7 +19,8 @@
       }
       body {
         margin: 0;
-        font-family: "Montserrat", sans-serif;
+        font-family: "Poppins", sans-serif;
+        font-weight: 400;
         scroll-snap-type: y mandatory;
         overflow-x: hidden;
         background: #000;
@@ -45,7 +46,8 @@
       #home h1 {
         font-size: 7rem;
         margin: 0 0 1rem 0;
-        font-weight: 800;
+        font-weight: 700;
+        text-transform: uppercase;
         background: linear-gradient(135deg, #00d2ff, #3a7bd5);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -67,13 +69,8 @@
             0 0 25px rgba(0, 210, 255, 0.5);
         }
       }
-      #home p {
-        font-size: 2rem;
-        max-width: 700px;
-        margin: 0 auto;
-      }
 
-      /* Removed button styles */
+      #home h1, #home p { position: relative; z-index: 1; }
 
       /* Documentation section */
       #documentation {
@@ -95,7 +92,6 @@
         scroll-snap-align: unset;
       }
 
-
       /* Protein background */
       #protein-canvas {
         position: fixed;
@@ -103,25 +99,9 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: -1;
+        z-index: -2;
         background: #000;
         pointer-events: none;
-      }
-
-      /* Smoke area */
-      #smoke-container {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 100%;
-        height: 50vh;
-        z-index: -1;
-        pointer-events: none;
-      }
-      #smoke-canvas {
-        width: 100%;
-        height: 100%;
       }
     </style>
   </head>
@@ -129,10 +109,7 @@
     <canvas id="protein-canvas"></canvas>
 
     <section id="home">
-      <div id="smoke-container">
-        <canvas id="smoke-canvas"></canvas>
-      </div>
-      <h1>Vivome</h1>
+      <h1>VivOME</h1>
       <p>A Living Joint Latent Atlas for Single-Cell Omics</p>
     </section>
 
@@ -165,23 +142,10 @@
         <section>
           <h2>What Makes Vivome Unique</h2>
           <ul>
-            <li>
-              <strong>Fully Single-Cell Resolution:</strong> Every point
-              represents a real single cell across RNA, protein, or chromatin
-              data.
-            </li>
-            <li>
-              <strong>Unpaired Data Integration:</strong> Aligns datasets
-              without requiring the same cells to be measured across modalities.
-            </li>
-            <li>
-              <strong>Cross-Modality Coupling:</strong> Ensures proteomic and
-              ATAC data are aligned to each other, not just to RNA.
-            </li>
-            <li>
-              <strong>Open and Versioned:</strong> Provides pretrained encoders
-              and reference embeddings so the atlas grows with new data.
-            </li>
+            <li><strong>Fully Single-Cell Resolution:</strong> Every point represents a real single cell across RNA, protein, or chromatin data.</li>
+            <li><strong>Unpaired Data Integration:</strong> Aligns datasets without requiring the same cells to be measured across modalities.</li>
+            <li><strong>Cross-Modality Coupling:</strong> Ensures proteomic and ATAC data are aligned to each other, not just to RNA.</li>
+            <li><strong>Open and Versioned:</strong> Provides pretrained encoders and reference embeddings so the atlas grows with new data.</li>
           </ul>
         </section>
         <section>
@@ -199,7 +163,7 @@
         </section>
       </div>
     </section>
-    <script src="https://unpkg.com/three@0.153.0/build/three.min.js"></script>
+
     <script>
       // Protein background animation
       const canvas = document.getElementById("protein-canvas");
@@ -286,57 +250,6 @@
         requestAnimationFrame(draw);
       }
       draw();
-
-      // Smoke effect over title
-      const smokeCanvas = document.getElementById("smoke-canvas");
-      const smokeContainer = document.getElementById("smoke-container");
-      const renderer = new THREE.WebGLRenderer({ canvas: smokeCanvas, alpha: true });
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(50, 1, 1, 1000);
-      camera.position.z = 100;
-
-      const cloudParticles = [];
-      const loader = new THREE.TextureLoader();
-      loader.load("https://threejs.org/examples/textures/smoke.png", (texture) => {
-        const cloudGeo = new THREE.PlaneGeometry(300, 300);
-        const cloudMaterial = new THREE.MeshLambertMaterial({
-          map: texture,
-          transparent: true,
-          opacity: 0.4,
-        });
-        for (let p = 0; p < 20; p++) {
-          const cloud = new THREE.Mesh(cloudGeo, cloudMaterial);
-          cloud.position.set(
-            Math.random() * 200 - 100,
-            Math.random() * 100 - 50,
-            Math.random() * 100 - 50
-          );
-          cloud.rotation.z = Math.random() * Math.PI * 2;
-          scene.add(cloud);
-          cloudParticles.push(cloud);
-        }
-        const light = new THREE.DirectionalLight(0xffffff, 0.5);
-        light.position.set(0, 0, 1);
-        scene.add(light);
-        animate();
-      });
-
-      function animate() {
-        requestAnimationFrame(animate);
-        cloudParticles.forEach((p) => {
-          p.rotation.z += 0.002;
-        });
-        renderer.render(scene, camera);
-      }
-
-      function resizeSmoke() {
-        const rect = smokeContainer.getBoundingClientRect();
-        renderer.setSize(rect.width, rect.height);
-        camera.aspect = rect.width / rect.height;
-        camera.updateProjectionMatrix();
-      }
-      window.addEventListener("resize", resizeSmoke);
-      resizeSmoke();
     </script>
   </body>
 </html>
