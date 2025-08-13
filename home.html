@@ -3,20 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vivome – A Living Joint Latent Atlas for Single-Cell Omics</title>
+    <title>VivOME – A Living Joint Latent Atlas for Single-Cell Omics</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-      }
-      html {
-        scroll-behavior: smooth;
-      }
+      *, *::before, *::after { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
       body {
         margin: 0;
         font-family: "Poppins", sans-serif;
@@ -36,63 +30,33 @@
         text-align: center;
         padding: 0 1rem;
       }
-
-      /* Home section */
-      #home {
-        color: #fff;
-        position: relative;
-        overflow: hidden;
-      }
+      #home { position: relative; overflow: hidden; }
       #home h1 {
-        font-size: 7rem;
+        font-size: 9rem;
         margin: 0 0 1rem 0;
         font-weight: 700;
-        text-transform: uppercase;
         background: linear-gradient(135deg, #00d2ff, #3a7bd5);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-shadow:
-          0 0 6px rgba(0, 210, 255, 0.4),
-          0 0 12px rgba(0, 210, 255, 0.2);
+        text-shadow: 0 0 6px rgba(0, 210, 255, 0.6), 0 0 12px rgba(0, 210, 255, 0.3);
         animation: halo 6s ease-in-out infinite;
+        -webkit-text-stroke: 1px rgba(0,0,0,0.25);
+      }
+      #home p {
+        font-size: 1.5rem;
+        margin: 0;
+        text-shadow: 0 0 8px rgba(0,0,0,0.3);
       }
       @keyframes halo {
-        0%,
-        100% {
-          text-shadow:
-            0 0 6px rgba(0, 210, 255, 0.4),
-            0 0 12px rgba(0, 210, 255, 0.2);
-        }
-        50% {
-          text-shadow:
-            0 0 15px rgba(0, 210, 255, 0.7),
-            0 0 25px rgba(0, 210, 255, 0.5);
-        }
+        0%, 100% { text-shadow: 0 0 6px rgba(0, 210, 255, 0.6), 0 0 12px rgba(0, 210, 255, 0.3); }
+        50% { text-shadow: 0 0 15px rgba(0, 210, 255, 0.9), 0 0 25px rgba(0, 210, 255, 0.6); }
       }
-
-      #home h1, #home p { position: relative; z-index: 1; }
-
-      /* Documentation section */
-      #documentation {
-        color: #fff;
-      }
-      #documentation .content {
-        max-width: 900px;
-        background: rgba(255, 255, 255, 0.05);
+      .title-wrap {
+        position: relative;
+        z-index: 2;
+        padding: 0.25rem 0.75rem;
         border-radius: 12px;
-        padding: 2rem;
       }
-      #documentation h2 {
-        color: #00d2ff;
-        margin-top: 0;
-      }
-      #documentation section {
-        margin-bottom: 2rem;
-        min-height: 0;
-        scroll-snap-align: unset;
-      }
-
-      /* Protein background */
       #protein-canvas {
         position: fixed;
         top: 0;
@@ -109,77 +73,49 @@
     <canvas id="protein-canvas"></canvas>
 
     <section id="home">
-      <h1>VivOME</h1>
-      <p>A Living Joint Latent Atlas for Single-Cell Omics</p>
-    </section>
-
-    <section id="documentation">
-      <div class="content">
-        <section>
-          <h2>Overview</h2>
-          <p>
-            Vivome is an open, evolving platform designed to integrate three
-            major single-cell data modalities – transcriptomics (scRNA-seq),
-            proteomics, and chromatin accessibility (scATAC-seq) – into a
-            single, unified coordinate system. By anchoring everything to a rich
-            RNA reference, Vivome allows seamless projection of unpaired
-            datasets, enabling researchers to explore cellular identity from
-            multiple biological angles without requiring matched multi-omic
-            experiments.
-          </p>
-        </section>
-        <section>
-          <h2>Why It Matters</h2>
-          <p>
-            Each single-cell modality captures only part of a cell’s story. RNA
-            tells us what genes are expressed, proteomics reveals the proteins
-            actually present, and ATAC-seq shows how the genome is accessible.
-            Vivome bridges these views, aligning them so that researchers can
-            uncover patterns, validate discoveries, and transfer cell type
-            labels across datasets with minimal or even zero prior annotation.
-          </p>
-        </section>
-        <section>
-          <h2>What Makes Vivome Unique</h2>
-          <ul>
-            <li><strong>Fully Single-Cell Resolution:</strong> Every point represents a real single cell across RNA, protein, or chromatin data.</li>
-            <li><strong>Unpaired Data Integration:</strong> Aligns datasets without requiring the same cells to be measured across modalities.</li>
-            <li><strong>Cross-Modality Coupling:</strong> Ensures proteomic and ATAC data are aligned to each other, not just to RNA.</li>
-            <li><strong>Open and Versioned:</strong> Provides pretrained encoders and reference embeddings so the atlas grows with new data.</li>
-          </ul>
-        </section>
-        <section>
-          <h2>Intended Impact</h2>
-          <p>
-            Vivome will enable scientists worldwide to project their own
-            single-cell datasets into a shared atlas, instantly contextualizing
-            them with rich multi-omic reference data. By removing barriers to
-            cross-modality analysis, this platform will accelerate biological
-            discoveries in immunology, systems biology, and beyond.
-          </p>
-        </section>
-        <section>
-          <p><a href="visuals.html" style="color: #00d2ff;">View Visuals</a></p>
-        </section>
+      <div class="title-wrap" id="title-wrap">
+        <h1>VivOME</h1>
+        <p>A Living Joint Latent Atlas for Single-Cell Omics</p>
       </div>
     </section>
 
     <script>
-      // Protein background animation
       const canvas = document.getElementById("protein-canvas");
       const ctx = canvas.getContext("2d");
+      const titleWrap = document.getElementById("title-wrap");
+
       const colors = ["#ff6b6b", "#f0a500", "#4ecdc4", "#3a7bd5", "#b388eb"];
-      let particles = [];
-      let cw, ch, dpr;
+      let particles = [], cw, ch, dpr;
+
+      function getSafeRect(pad = 20) {
+        const r = titleWrap.getBoundingClientRect();
+        return { x: r.left - pad, y: r.top - pad, w: r.width + pad*2, h: r.height + pad*2 };
+      }
+      function pointInRect(x, y, rect) {
+        return x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h;
+      }
+      function resolveRectCollision(p, rect) {
+        if (!pointInRect(p.x, p.y, rect)) return;
+        const left = rect.x;
+        const right = rect.x + rect.w;
+        const top = rect.y;
+        const bottom = rect.y + rect.h;
+        const dl = Math.abs(p.x - left);
+        const dr = Math.abs(right - p.x);
+        const dt = Math.abs(p.y - top);
+        const db = Math.abs(bottom - p.y);
+        const minD = Math.min(dl, dr, dt, db);
+        if (minD === dl) { p.x = left - (p.r + 0.1); p.vx = -Math.abs(p.vx); }
+        else if (minD === dr) { p.x = right + (p.r + 0.1); p.vx = Math.abs(p.vx); }
+        else if (minD === dt) { p.y = top - (p.r + 0.1); p.vy = -Math.abs(p.vy); }
+        else { p.y = bottom + (p.r + 0.1); p.vy = Math.abs(p.vy); }
+      }
 
       function resize() {
         dpr = window.devicePixelRatio || 1;
-        cw = window.innerWidth;
-        ch = window.innerHeight;
-        canvas.width = cw * dpr;
-        canvas.height = ch * dpr;
-        canvas.style.width = cw + "px";
-        canvas.style.height = ch + "px";
+        cw = window.innerWidth; ch = window.innerHeight;
+        canvas.width = cw * dpr; canvas.height = ch * dpr;
+        canvas.style.width = cw + "px"; canvas.style.height = ch + "px";
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         initParticles();
       }
@@ -189,15 +125,22 @@
       function initParticles() {
         particles = [];
         const count = Math.floor((cw + ch) / 50);
+        const safe = getSafeRect(20);
         for (let i = 0; i < count; i++) {
+          let x, y;
+          for (let tries = 0; tries < 200; tries++) {
+            x = Math.random() * cw;
+            y = Math.random() * ch;
+            if (!pointInRect(x, y, safe)) break;
+          }
           particles.push({
-            x: Math.random() * cw,
-            y: Math.random() * ch,
+            x,
+            y,
             vx: (Math.random() - 0.5) * 0.3,
             vy: (Math.random() - 0.5) * 0.3,
             r: 8 + Math.random() * 4,
             color: colors[Math.floor(Math.random() * colors.length)],
-            phase: Math.random() * Math.PI * 2,
+            phase: Math.random() * Math.PI * 2
           });
         }
       }
@@ -205,21 +148,16 @@
       function draw() {
         ctx.clearRect(0, 0, cw, ch);
         const time = performance.now() * 0.002;
+        const safe = getSafeRect(20);
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i];
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0 || p.x > cw) p.vx *= -1;
-          if (p.y < 0 || p.y > ch) p.vy *= -1;
-
-          const grad = ctx.createRadialGradient(
-            p.x - p.r / 3,
-            p.y - p.r / 3,
-            p.r / 5,
-            p.x,
-            p.y,
-            p.r
-          );
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < p.r) { p.x = p.r; p.vx *= -1; }
+          if (p.x > cw - p.r) { p.x = cw - p.r; p.vx *= -1; }
+          if (p.y < p.r) { p.y = p.r; p.vy *= -1; }
+          if (p.y > ch - p.r) { p.y = ch - p.r; p.vy *= -1; }
+          resolveRectCollision(p, safe);
+          const grad = ctx.createRadialGradient(p.x - p.r / 3, p.y - p.r / 3, p.r / 5, p.x, p.y, p.r);
           grad.addColorStop(0, "#fff");
           grad.addColorStop(1, p.color);
           ctx.shadowColor = p.color;
@@ -229,13 +167,15 @@
           ctx.fillStyle = grad;
           ctx.fill();
           ctx.shadowBlur = 0;
-
+        }
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
           for (let j = i + 1; j < particles.length; j++) {
             const q = particles[j];
-            const dx = p.x - q.x;
-            const dy = p.y - q.y;
+            const dx = p.x - q.x, dy = p.y - q.y;
             const dist = Math.hypot(dx, dy);
             if (dist < 120) {
+              if (pointInRect(p.x, p.y, safe) || pointInRect(q.x, q.y, safe)) continue;
               ctx.strokeStyle = "#fff";
               ctx.globalAlpha = 0.3;
               ctx.lineWidth = 1;
