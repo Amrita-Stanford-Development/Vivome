@@ -1010,11 +1010,11 @@
       const isSameColorGroup = hoveredCircle && ultimateParent.color === hoveredCircle.color;
       
       const pulse = 1 + 0.05 * Math.sin(time * 0.68 + c.animId); // Reduced by 15%
-      const radius = c.r * (hoveredCircle === c || (isSameColorGroup && !c.isMain) ? 1.1 : 1) * pulse; // Extended scaling to small balls
+      const radius = c.r * (isSameColorGroup ? 1.15 : 1) * pulse; // Simplified: just make bigger when in same color group
       const glow = isSameColorGroup ? 35 : 20;
 
       ctx.save();
-      ctx.globalAlpha = isSameColorGroup ? 1 : 0.7;
+      ctx.globalAlpha = 1; // Always fully opaque
       ctx.shadowBlur = glow;
       ctx.shadowColor = c.color;
       ctx.fillStyle = c.color;
