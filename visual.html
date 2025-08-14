@@ -20,6 +20,23 @@
       gap: 30px;
       overflow: hidden;
     }
+    
+    @media (max-width: 1200px) {
+      body {
+        padding: 15px;
+        gap: 20px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        padding: 10px;
+        gap: 15px;
+        height: auto;
+        min-height: 100vh;
+      }
+    }
     #bgCanvas {
       position: fixed;
       top: 0;
@@ -57,6 +74,30 @@
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       background: #fff;
       flex-grow: 1;
+      min-height: 500px;
+    }
+    
+    @media (max-width: 1200px) {
+      iframe {
+        width: 60%;
+        height: calc(100vh - 50px);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      iframe {
+        width: 100%;
+        height: calc(100vh - 200px);
+        min-height: 400px;
+        flex-grow: 1;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      iframe {
+        height: calc(100vh - 180px);
+        min-height: 350px;
+      }
     }
     iframe:hover {
       transform: translateY(-8px);
@@ -79,11 +120,21 @@
       font-weight: 500;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: all 0.2s ease;
+      z-index: 10;
     }
     #backButton:hover { 
       background: #e9ecef;
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    @media (max-width: 768px) {
+      #backButton {
+        top: 10px;
+        left: 10px;
+        padding: 10px 16px;
+        font-size: 14px;
+      }
     }
     input[type="radio"] {
       margin-right: 8px;
