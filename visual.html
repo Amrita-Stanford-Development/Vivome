@@ -7,44 +7,125 @@
   <style>
     body {
       margin: 0;
-      background: #000;
-      color: #fff;
+      background: #fff;
+      color: #000;
       font-family: "Poppins", sans-serif;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-direction: row;
+      align-items: flex-start;
       justify-content: flex-start;
       height: 100vh;
-      padding-top: 20px;
+      padding: 20px;
       position: relative;
+      gap: 30px;
+      overflow: hidden;
     }
-    .controls { text-align: center; }
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    .controls { 
+      width: 300px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: fit-content;
+      align-self: center;
+    }
     .sliders { display: none; margin-top: 10px; }
     .sliders div { margin-top: 10px; }
-    iframe { width: 90%; height: 80vh; border: none; margin-top: 20px; }
+    iframe { 
+      width: 65%; 
+      height: calc(100vh - 40px); 
+      border: none; 
+      margin: 0;
+      border-radius: 12px;
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 8px 16px rgba(0, 0, 0, 0.1),
+        0 4px 8px rgba(0, 0, 0, 0.08);
+      transform: translateY(-4px);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      background: #fff;
+      flex-grow: 1;
+    }
+    iframe:hover {
+      transform: translateY(-8px);
+      box-shadow: 
+        0 32px 64px rgba(0, 0, 0, 0.2),
+        0 16px 32px rgba(0, 0, 0, 0.15),
+        0 8px 16px rgba(0, 0, 0, 0.1);
+    }
     #backButton {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      padding: 8px 16px;
-      background: #444;
-      color: #fff;
+      top: 20px;
+      left: 20px;
+      padding: 12px 20px;
+      background: #f8f9fa;
+      color: #000;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
     }
-    #backButton:hover { background: #666; }
+    #backButton:hover { 
+      background: #e9ecef;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    input[type="radio"] {
+      margin-right: 8px;
+    }
+    label {
+      color: #000;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
+  <canvas id="bgCanvas"></canvas>
   <button id="backButton" onclick="window.location.href='home.html'">Back</button>
   <div class="controls">
-    <label><input type="radio" name="mode" value="supervised" checked> Supervised</label>
-    <label style="margin-left:20px"><input type="radio" name="mode" value="semisupervised"> Semi Supervised</label>
+    <h3 class="controls-title">Select Mode</h3>
+    <div class="radio-group">
+      <label class="radio-option">
+        <input type="radio" name="mode" value="supervised" checked>
+        <span class="radio-custom"></span>
+        Supervised
+      </label>
+      <label class="radio-option">
+        <input type="radio" name="mode" value="semisupervised">
+        <span class="radio-custom"></span>
+        Semi-Supervised
+      </label>
+      <label class="radio-option">
+        <input type="radio" name="mode" value="unsupervised">
+        <span class="radio-custom"></span>
+        Unsupervised
+      </label>
+      <label class="radio-option">
+        <input type="radio" name="mode" value="miscellaneous">
+        <span class="radio-custom"></span>
+        Miscellaneous
+      </label>
+    </div>
     <div class="sliders" id="sliders">
-      <div>
-        <label>RNA label Percentage: <span id="rnaVal">5</span></label><br>
-        <input type="range" id="rnaSlider" min="0" max="4" step="1" value="0" list="rnaTicks">
+      <h4 class="slider-title">Parameters</h4>
+      <div class="slider-group">
+        <label class="slider-label">RNA Label Percentage: <span id="rnaVal" class="slider-value">5</span>%</label>
+        <input type="range" id="rnaSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="rnaTicks">
         <datalist id="rnaTicks">
           <option value="0" label="5"></option>
           <option value="1" label="10"></option>
@@ -53,9 +134,9 @@
           <option value="4" label="75"></option>
         </datalist>
       </div>
-      <div>
-        <label>Proteomics Label Percentage: <span id="protVal">5</span></label><br>
-        <input type="range" id="protSlider" min="0" max="4" step="1" value="0" list="protTicks">
+      <div class="slider-group">
+        <label class="slider-label">Proteomics Label Percentage: <span id="protVal" class="slider-value">5</span>%</label>
+        <input type="range" id="protSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="protTicks">
         <datalist id="protTicks">
           <option value="0" label="5"></option>
           <option value="1" label="10"></option>
@@ -66,7 +147,7 @@
       </div>
     </div>
   </div>
-  <iframe id="contentFrame" src="Supervised.html"></iframe>
+  <iframe id="contentFrame" src="3D Plots/Supervised.html"></iframe>
   <script>
     const modeRadios = document.querySelectorAll('input[name="mode"]');
     const slidersDiv = document.getElementById('sliders');
@@ -86,12 +167,18 @@
       const mode = document.querySelector('input[name="mode"]:checked').value;
       if (mode === 'supervised') {
         slidersDiv.style.display = 'none';
-        iframe.src = 'Supervised.html';
+        iframe.src = '3D Plots/Supervised.html';
+      } else if (mode === 'unsupervised') {
+        slidersDiv.style.display = 'none';
+        iframe.src = '3D Plots/Unsupervised.html';
+      } else if (mode === 'miscellaneous') {
+        slidersDiv.style.display = 'none';
+        iframe.src = '3D Plots/Miscellaneous.html';
       } else {
         slidersDiv.style.display = 'block';
         const rna = values[rnaSlider.value];
         const prot = values[protSlider.value];
-        iframe.src = encodeURI('Semi Supervised/PCA3D_semi_r' + rna + '_p' + prot + '.html');
+        iframe.src = '3D Plots/PCA3D_semi_r' + rna + '_p' + prot + '.html';
       }
     }
 
@@ -101,6 +188,380 @@
 
     updateSliderDisplays();
     updateIframe();
+
+    // --- Enhanced Scientific Background Canvas Animation ---
+    const bgCanvas = document.getElementById('bgCanvas');
+    const bgCtx = bgCanvas.getContext('2d');
+
+    function resizeBg() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeBg);
+    resizeBg();
+
+    // Particle system for cellular/molecular visualization
+    class Particle {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * bgCanvas.height;
+      }
+
+      reset() {
+        this.x = Math.random() * bgCanvas.width;
+        this.y = bgCanvas.height + Math.random() * 100;
+        this.size = Math.random() * 3 + 1;
+        this.speedY = -Math.random() * 0.42 - 0.17;
+        this.speedX = (Math.random() - 0.5) * 0.25;
+        this.opacity = Math.random() * 0.6 + 0.3;
+        this.pulsePhase = Math.random() * Math.PI * 2;
+        
+        // Properties for DNA/RNA helixes
+        this.helixPhase = Math.random() * Math.PI * 2;
+        this.helixLength = Math.random() * 30 + 20;
+        this.helixAmplitude = Math.random() * 8 + 4;
+      }
+
+      update(time) {
+        this.y += this.speedY;
+        this.x += this.speedX + Math.sin(time * 0.42 + this.pulsePhase) * 0.17;
+        
+        if (this.y < -50) {
+          this.reset();
+        }
+        
+        // Wrap around horizontally
+        if (this.x < -50) this.x = bgCanvas.width + 50;
+        if (this.x > bgCanvas.width + 50) this.x = -50;
+      }
+
+      draw(ctx, time) {
+        ctx.save();
+        const pulse = 1 + Math.sin(time * 1.7 + this.pulsePhase) * 0.2;
+        const currentSize = this.size * pulse;
+        
+        ctx.globalAlpha = this.opacity;
+        
+        if (this.type === 'cell') {
+          // Draw cell-like particles
+          const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, currentSize * 3);
+          gradient.addColorStop(0, 'rgba(0, 142, 204, 0.7)');
+          gradient.addColorStop(0.5, 'rgba(0, 142, 204, 0.4)');
+          gradient.addColorStop(1, 'rgba(0, 142, 204, 0)');
+          
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, currentSize * 3, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Inner nucleus
+          ctx.fillStyle = 'rgba(0, 142, 204, 0.9)';
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, currentSize, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.type === 'molecule') {
+          // Draw molecule-like particles
+          ctx.fillStyle = 'rgba(92, 184, 92, 0.7)';
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, currentSize, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.type === 'miniDNA') {
+          // Draw small DNA double helix
+          this.drawMiniDNA(ctx, time, currentSize);
+        } else if (this.type === 'miniRNA') {
+          // Draw small RNA single helix
+          this.drawMiniRNA(ctx, time, currentSize);
+        }
+        
+        ctx.restore();
+      }
+      
+      drawMiniDNA(ctx, time, size) {
+        const points = 8;
+        const spacing = this.helixLength / points;
+        
+        // Draw first strand
+        ctx.strokeStyle = 'rgba(0, 142, 204, 0.75)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        
+        for (let i = 0; i < points; i++) {
+          const localY = i * spacing - this.helixLength / 2;
+          const x1 = this.x + Math.sin(time * 0.3 + this.helixPhase + i * 0.5) * this.helixAmplitude;
+          const y1 = this.y + localY;
+          
+          if (i === 0) {
+            ctx.moveTo(x1, y1);
+          } else {
+            ctx.lineTo(x1, y1);
+          }
+        }
+        ctx.stroke();
+        
+        // Draw second strand
+        ctx.beginPath();
+        for (let i = 0; i < points; i++) {
+          const localY = i * spacing - this.helixLength / 2;
+          const x2 = this.x + Math.sin(time * 0.3 + this.helixPhase + i * 0.5 + Math.PI) * this.helixAmplitude;
+          const y2 = this.y + localY;
+          
+          if (i === 0) {
+            ctx.moveTo(x2, y2);
+          } else {
+            ctx.lineTo(x2, y2);
+          }
+        }
+        ctx.stroke();
+        
+        // Draw base pairs
+        ctx.strokeStyle = 'rgba(92, 184, 92, 0.6)';
+        ctx.lineWidth = 0.8;
+        
+        for (let i = 0; i < points; i += 2) {
+          const localY = i * spacing - this.helixLength / 2;
+          const x1 = this.x + Math.sin(time * 0.3 + this.helixPhase + i * 0.5) * this.helixAmplitude;
+          const x2 = this.x + Math.sin(time * 0.3 + this.helixPhase + i * 0.5 + Math.PI) * this.helixAmplitude;
+          const y = this.y + localY;
+          
+          ctx.beginPath();
+          ctx.moveTo(x1, y);
+          ctx.lineTo(x2, y);
+          ctx.stroke();
+        }
+      }
+      
+      drawMiniRNA(ctx, time, size) {
+        const points = 8;
+        const spacing = this.helixLength / points;
+        
+        // Draw single RNA strand
+        ctx.strokeStyle = 'rgba(220, 53, 69, 0.75)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let i = 0; i < points; i++) {
+          const localY = i * spacing - this.helixLength / 2;
+          const x = this.x + Math.sin(time * 0.25 + this.helixPhase + i * 0.4) * this.helixAmplitude;
+          const y = this.y + localY;
+          
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+        
+        // Add small nucleotide dots along RNA
+        ctx.fillStyle = 'rgba(255, 193, 7, 0.7)';
+        for (let i = 0; i < points; i += 2) {
+          const localY = i * spacing - this.helixLength / 2;
+          const x = this.x + Math.sin(time * 0.25 + this.helixPhase + i * 0.4) * this.helixAmplitude;
+          const y = this.y + localY;
+          
+          ctx.beginPath();
+          ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    // Network nodes for molecular connections
+    class NetworkNode {
+      constructor() {
+        this.x = Math.random() * bgCanvas.width;
+        this.y = Math.random() * bgCanvas.height;
+        this.vx = (Math.random() - 0.5) * 0.42;
+        this.vy = (Math.random() - 0.5) * 0.42;
+        this.radius = Math.random() * 2 + 1;
+        this.connections = [];
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        
+        // Bounce off edges
+        if (this.x < 0 || this.x > bgCanvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > bgCanvas.height) this.vy *= -1;
+        
+        // Keep in bounds
+        this.x = Math.max(0, Math.min(bgCanvas.width, this.x));
+        this.y = Math.max(0, Math.min(bgCanvas.height, this.y));
+      }
+
+      draw(ctx) {
+        ctx.fillStyle = 'rgba(0, 142, 204, 0.5)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Flowing gradient waves
+    class FlowField {
+      constructor() {
+        this.resolution = 50;
+        this.cols = Math.ceil(bgCanvas.width / this.resolution);
+        this.rows = Math.ceil(bgCanvas.height / this.resolution);
+        this.zOffset = 0;
+      }
+
+      draw(ctx, time) {
+        ctx.save();
+        ctx.globalAlpha = 0.05;
+        
+        for (let i = 0; i < this.cols; i++) {
+          for (let j = 0; j < this.rows; j++) {
+            const x = i * this.resolution;
+            const y = j * this.resolution;
+            
+            const angle = (Math.sin(x * 0.01 + time * 0.17) + Math.cos(y * 0.01 + time * 0.127)) * Math.PI;
+            const length = this.resolution * 0.8;
+            
+            ctx.strokeStyle = `hsla(${200 + Math.sin(time + i * 0.1) * 20}, 70%, 50%, 0.15)`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(
+              x + Math.cos(angle) * length,
+              y + Math.sin(angle) * length
+            );
+            ctx.stroke();
+          }
+        }
+        
+        ctx.restore();
+      }
+    }
+
+    // Initialize background elements - 50 DNA + 50 RNA + 150 circular particles
+    const dnaParticles = Array.from({ length: 50 }, () => {
+      const particle = new Particle();
+      particle.type = 'miniDNA';
+      return particle;
+    });
+    
+    const rnaParticles = Array.from({ length: 50 }, () => {
+      const particle = new Particle();
+      particle.type = 'miniRNA';
+      return particle;
+    });
+    
+    const circularParticles = Array.from({ length: 150 }, () => {
+      const particle = new Particle();
+      particle.type = Math.random() < 0.5 ? 'cell' : 'molecule';
+      return particle;
+    });
+    
+    const particles = [...dnaParticles, ...rnaParticles, ...circularParticles];
+    const networkNodes = Array.from({ length: 50 }, () => new NetworkNode());
+    const flowField = new FlowField();
+
+    // Connect nearby network nodes
+    function updateNetworkConnections() {
+      const maxDistance = 140;
+      networkNodes.forEach((node, i) => {
+        node.connections = [];
+        networkNodes.slice(i + 1).forEach(otherNode => {
+          const dx = node.x - otherNode.x;
+          const dy = node.y - otherNode.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < maxDistance) {
+            node.connections.push({ node: otherNode, distance });
+          }
+        });
+      });
+    }
+
+    // Main animation loop
+    function drawBackground() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      const time = Date.now() * 0.00085;
+      
+      // Draw gradient base
+      const gradient = bgCtx.createLinearGradient(0, 0, bgCanvas.width, bgCanvas.height);
+      gradient.addColorStop(0, '#F8F8F6');
+      gradient.addColorStop(0.5, '#F5F5F3');
+      gradient.addColorStop(1, '#F2F2F0');
+      bgCtx.fillStyle = gradient;
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+      
+      // Draw flow field
+      flowField.draw(bgCtx, time);
+      
+      // Update and draw network
+      networkNodes.forEach(node => {
+        node.update();
+      });
+      
+      if (Math.random() < 0.1) {
+        updateNetworkConnections();
+      }
+      
+      // Draw network connections
+      bgCtx.save();
+      bgCtx.globalAlpha = 0.1;
+      networkNodes.forEach(node => {
+        node.connections.forEach(connection => {
+          const opacity = 1 - (connection.distance / 140);
+          bgCtx.strokeStyle = `rgba(0, 142, 204, ${opacity * 0.6})`;
+          bgCtx.lineWidth = 0.8;
+          bgCtx.beginPath();
+          bgCtx.moveTo(node.x, node.y);
+          bgCtx.lineTo(connection.node.x, connection.node.y);
+          bgCtx.stroke();
+        });
+      });
+      
+      // Draw network nodes
+      networkNodes.forEach(node => node.draw(bgCtx));
+      bgCtx.restore();
+      
+      // Update and draw particles
+      particles.forEach(particle => {
+        particle.update(time);
+        particle.draw(bgCtx, time);
+      });
+      
+      // Draw subtle grid pattern
+      bgCtx.save();
+      bgCtx.globalAlpha = 0.03;
+      bgCtx.strokeStyle = 'rgba(0, 142, 204, 0.5)';
+      bgCtx.lineWidth = 0.5;
+      
+      const gridSize = 100;
+      for (let x = 0; x < bgCanvas.width; x += gridSize) {
+        bgCtx.beginPath();
+        bgCtx.moveTo(x, 0);
+        bgCtx.lineTo(x, bgCanvas.height);
+        bgCtx.stroke();
+      }
+      
+      for (let y = 0; y < bgCanvas.height; y += gridSize) {
+        bgCtx.beginPath();
+        bgCtx.moveTo(0, y);
+        bgCtx.lineTo(bgCanvas.width, y);
+        bgCtx.stroke();
+      }
+      bgCtx.restore();
+      
+      // Add subtle vignette effect
+      const vignette = bgCtx.createRadialGradient(
+        bgCanvas.width / 2, bgCanvas.height / 2, 0,
+        bgCanvas.width / 2, bgCanvas.height / 2, Math.max(bgCanvas.width, bgCanvas.height) * 0.7
+      );
+      vignette.addColorStop(0, 'rgba(245, 245, 243, 0)');
+      vignette.addColorStop(1, 'rgba(0, 142, 204, 0.08)');
+      bgCtx.fillStyle = vignette;
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+      
+      requestAnimationFrame(drawBackground);
+    }
+    
+    // Start animation
+    updateNetworkConnections();
+    drawBackground();
   </script>
 </body>
 </html>
