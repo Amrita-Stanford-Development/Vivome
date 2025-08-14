@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Visualization</title>
+  <title>Biological Data Visualization</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -84,8 +84,8 @@
     }
     
     .parameter-title {
-      margin: 0 0 24px 0;
-      font-size: 18px;
+      margin: 0 0 16px 0;
+      font-size: 14px;
       font-weight: 700;
       color: #333;
       text-align: center;
@@ -93,28 +93,28 @@
     }
     
     .parameter-group { 
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     
     .parameter-label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-weight: 500;
       color: #555;
-      font-size: 12px;
+      font-size: 11px;
       text-align: center;
     }
     
     .parameter-value {
       color: #007bff;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 12px;
     }
     
     .vertical-slider {
       width: 100%;
-      height: 120px;
-      margin: 10px 0;
+      height: 100px;
+      margin: 8px 0;
       -webkit-appearance: slider-vertical;
       appearance: slider-vertical;
       background: #ddd;
@@ -176,14 +176,14 @@
       line-height: 1.6;
       color: #555;
       text-align: justify;
-      opacity: 0;
-      transform: translateY(10px);
+      opacity: 1;
+      transform: translateY(0);
       transition: all 0.3s ease;
     }
     
-    .explanation-content.active {
-      opacity: 1;
-      transform: translateY(0);
+    .explanation-content.hidden {
+      opacity: 0;
+      transform: translateY(10px);
     }
     
     .explanation-content p {
@@ -268,7 +268,50 @@
     }
     
     .sliders { 
-      display: none !important;
+      display: none;
+      margin-bottom: 20px;
+    }
+    
+    .sliders.visible {
+      display: block;
+    }
+    
+    .slider-group {
+      margin-bottom: 15px;
+    }
+    
+    .slider-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+      font-size: 14px;
+    }
+    
+    .slider-value {
+      color: #007bff;
+      font-weight: 600;
+    }
+    
+    .custom-slider {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: #ddd;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .custom-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #007bff;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     
     .create-plot-btn {
@@ -334,6 +377,8 @@
       transform: scale(0.8) translateY(50px);
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
     
     .plot-modal.active .plot-container {
@@ -347,6 +392,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
     
     .plot-title {
@@ -373,35 +419,49 @@
       transform: translateY(-1px);
     }
     
-    iframe {
+    .plot-content {
+      flex: 1;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+      font-size: 18px;
+      color: #666;
+      overflow: hidden;
+    }
+    
+    .plot-content iframe {
       width: 100%;
-      height: calc(100% - 80px);
+      height: 100%;
       border: none;
       background: #fff;
     }
     
-    #backButton {
+    .parameter-card {
       position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 12px 20px;
+      left: -200px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 120px;
+      padding: 12px;
       background: rgba(248, 249, 250, 0.95);
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: "Poppins", sans-serif;
-      font-weight: 500;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s ease;
-      z-index: 10;
       backdrop-filter: blur(10px);
+      border-radius: 15px;
+      box-shadow: 
+        0 15px 30px rgba(0, 0, 0, 0.1),
+        0 5px 15px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-50%) translateX(-20px);
     }
     
-    #backButton:hover { 
-      background: rgba(233, 236, 239, 0.95);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    .parameter-card.visible {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(-50%) translateX(0);
     }
     
     @media (max-width: 768px) {
@@ -427,12 +487,22 @@
       .plot-title {
         font-size: 18px;
       }
+      
+      .parameter-card {
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      
+      .menu-container {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
   <canvas id="bgCanvas"></canvas>
-  <button id="backButton" onclick="window.location.href='index.html'">Back</button>
   
   <div class="menu-container" id="menuContainer">
     <div class="parameter-card" id="parameterCard">
@@ -474,58 +544,6 @@
           </label>
         </div>
         
-        <div class="sliders" id="sliders">
-          <h4 class="slider-title">Parameter Configuration</h4>
-          <div class="slider-group">
-            <label class="slider-label">RNA Label Percentage: <span id="rnaVal" class="slider-value">5</span>%</label>
-            <input type="range" id="rnaSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="rnaTicks">
-            <datalist id="rnaTicks">
-              <option value="0" label="5"></option>
-              <option value="1" label="10"></option>
-              <option value="2" label="25"></option>
-              <option value="3" label="50"></option>
-              <option value="4" label="75"></option>
-            </datalist>
-          </div>
-          <div class="slider-group">
-            <label class="slider-label">Proteomics Label Percentage: <span id="protVal" class="slider-value">5</span>%</label>
-            <input type="range" id="protSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="protTicks">
-            <datalist id="protTicks">
-              <option value="0" label="5"></option>
-              <option value="1" label="10"></option>
-              <option value="2" label="25"></option>
-              <option value="3" label="50"></option>
-              <option value="4" label="75"></option>
-            </datalist>
-          </div>
-        </div>
-        
-        <div class="sliders" id="sliders">
-          <h4 class="slider-title">Parameter Configuration</h4>
-          <div class="slider-group">
-            <label class="slider-label">RNA Label Percentage: <span id="rnaVal" class="slider-value">5</span>%</label>
-            <input type="range" id="rnaSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="rnaTicks">
-            <datalist id="rnaTicks">
-              <option value="0" label="5"></option>
-              <option value="1" label="10"></option>
-              <option value="2" label="25"></option>
-              <option value="3" label="50"></option>
-              <option value="4" label="75"></option>
-            </datalist>
-          </div>
-          <div class="slider-group">
-            <label class="slider-label">Proteomics Label Percentage: <span id="protVal" class="slider-value">5</span>%</label>
-            <input type="range" id="protSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="protTicks">
-            <datalist id="protTicks">
-              <option value="0" label="5"></option>
-              <option value="1" label="10"></option>
-              <option value="2" label="25"></option>
-              <option value="3" label="50"></option>
-              <option value="4" label="75"></option>
-            </datalist>
-          </div>
-        </div>
-        
         <button class="create-plot-btn" onclick="createPlot()">Create Plot</button>
       </div>
       
@@ -533,7 +551,7 @@
         <h4 class="explanation-title">About This Mode</h4>
         
         <div id="explanationContainer">
-          <div id="supervisedExplanation" class="explanation-content active">
+          <div id="supervisedExplanation" class="explanation-content">
             <p>The <span class="highlight">Supervised Learning</span> visualization displays data where all samples have known labels and classifications.</p>
             <p>This mode is ideal for understanding how different cell types cluster when their identities are already established, allowing you to validate classification algorithms and explore pattern recognition.</p>
             <p>Use this visualization to examine the separation between different biological conditions and identify potential biomarkers.</p>
@@ -549,48 +567,49 @@
         <h2 class="plot-title" id="plotTitle">Visualization</h2>
         <button class="back-btn" onclick="closePlot()">← Back to Menu</button>
       </div>
-      <iframe id="contentFrame" src=""></iframe>
+      <div class="plot-content" id="plotContent">
+        Click "Create Plot" to generate your visualization
+      </div>
     </div>
   </div>
 
   <script>
     const modeRadios = document.querySelectorAll('input[name="mode"]');
-    const slidersDiv = document.getElementById('sliders');
-    const rnaSlider = document.getElementById('rnaSlider');
-    const protSlider = document.getElementById('protSlider');
-    const rnaValEl = document.getElementById('rnaVal');
-    const protValEl = document.getElementById('protVal');
+    const rnaSliderVertical = document.getElementById('rnaSliderVertical');
+    const protSliderVertical = document.getElementById('protSliderVertical');
+    const rnaValVerticalEl = document.getElementById('rnaValVertical');
+    const protValVerticalEl = document.getElementById('protValVertical');
     const values = [5,10,25,50,75];
 
     function updateSliderDisplays() {
-      rnaValEl.textContent = values[rnaSlider.value];
-      protValEl.textContent = values[protSlider.value];
+      // Only update vertical sliders now
+      const rnaVerticalIdx = rnaSliderVertical ? rnaSliderVertical.value : 0;
+      const protVerticalIdx = protSliderVertical ? protSliderVertical.value : 0;
+      
+      if (rnaValVerticalEl) rnaValVerticalEl.textContent = values[rnaVerticalIdx];
+      if (protValVerticalEl) protValVerticalEl.textContent = values[protVerticalIdx];
     }
 
     function updateSliders() {
       const mode = document.querySelector('input[name="mode"]:checked').value;
+      const parameterCard = document.getElementById('parameterCard');
+      
       if (mode === 'semisupervised') {
-        slidersDiv.style.display = 'block';
+        parameterCard.classList.add('visible');
       } else {
-        slidersDiv.style.display = 'none';
+        parameterCard.classList.remove('visible');
       }
-      updateExplanation(mode);
+      
+      updateExplanation();
     }
 
     function updateExplanation(mode) {
-      const container = document.getElementById('explanationContainer');
-      const supervisedExplanation = document.getElementById('supervisedExplanation');
-      
-      if (mode === 'supervised') {
-        supervisedExplanation.style.display = 'block';
-      } else {
-        supervisedExplanation.style.display = 'none';
-      }
+      // Keep only supervised explanation visible, no mode switching
     }
 
     function createPlot() {
       const mode = document.querySelector('input[name="mode"]:checked').value;
-      const iframe = document.getElementById('contentFrame');
+      const plotContent = document.getElementById('plotContent');
       const plotTitle = document.getElementById('plotTitle');
       const menuContainer = document.getElementById('menuContainer');
       const plotModal = document.getElementById('plotModal');
@@ -601,22 +620,23 @@
       let title = '';
       
       if (mode === 'supervised') {
-        src = '3D Plots/Supervised.html';
+        src = '3D plots/Supervised.html';
         title = 'Supervised Learning Visualization';
       } else if (mode === 'unsupervised') {
-        src = '3D Plots/Unsupervised.html';
+        src = '3D plots/Unsupervised.html';
         title = 'Unsupervised Learning Visualization';
       } else if (mode === 'miscellaneous') {
-        src = '3D Plots/Miscellaneous.html';
+        src = '3D plots/Miscellaneous.html';
         title = 'Miscellaneous Analysis Visualization';
       } else {
         const rna = values[rnaSliderVertical ? rnaSliderVertical.value : 0];
         const prot = values[protSliderVertical ? protSliderVertical.value : 0];
-        src = '3D Plots/PCA3D_semi_r' + rna + '_p' + prot + '.html';
+        src = `3D plots/PCA3D_semi_r${rna}_p${prot}.html`;
         title = `Semi-Supervised Learning (RNA: ${rna}%, Prot: ${prot}%)`;
       }
       
-      iframe.src = src;
+      // Create iframe to load the HTML file
+      plotContent.innerHTML = `<iframe src="${src}" frameborder="0"></iframe>`;
       plotTitle.textContent = title;
       
       // Show modal with animation
@@ -625,11 +645,10 @@
       setTimeout(() => {
         plotModal.classList.add('active');
       }, 150);
-      
-      // Re-inject CSS when iframe content changes
-      setTimeout(injectIframeCSS, 300);
     }
 
+    // Remove the mock visualization function since we're now using real iframes
+    
     function closePlot() {
       const menuContainer = document.getElementById('menuContainer');
       const plotModal = document.getElementById('plotModal');
@@ -640,92 +659,19 @@
       setTimeout(() => {
         body.classList.remove('modal-open');
         menuContainer.classList.remove('hidden');
-        document.getElementById('contentFrame').src = '';
+        document.getElementById('plotContent').innerHTML = 'Click "Create Plot" to generate your visualization';
       }, 300);
     }
 
+    // Event listeners
     modeRadios.forEach(r => r.addEventListener('change', updateSliders));
     
-    // Add event listeners for vertical sliders
-    if (rnaSliderVertical && protSliderVertical) {
-      rnaSliderVertical.addEventListener('input', updateSliderDisplays);
-      protSliderVertical.addEventListener('input', updateSliderDisplays);
-    }
+    if (rnaSliderVertical) rnaSliderVertical.addEventListener('input', updateSliderDisplays);
+    if (protSliderVertical) protSliderVertical.addEventListener('input', updateSliderDisplays);
 
     // Initialize
     updateSliderDisplays();
     updateSliders();
-
-    updateSliderDisplays();
-    updateSliders();
-
-    // Function to inject CSS into iframe content
-    function injectIframeCSS() {
-      const iframe = document.getElementById('contentFrame');
-      iframe.onload = function() {
-        try {
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-          
-          // Create style element
-          const style = iframeDoc.createElement('style');
-          style.textContent = `
-            * {
-              box-sizing: border-box;
-            }
-            html {
-              margin: 0 !important;
-              padding: 0 !important;
-              width: 100% !important;
-              height: 100% !important;
-              overflow: hidden !important;
-            }
-            body {
-              margin: 15px !important;
-              padding: 0 !important;
-              width: calc(100% - 30px) !important;
-              height: calc(100% - 30px) !important;
-              overflow: hidden !important;
-              font-family: inherit !important;
-              position: relative !important;
-            }
-            /* Ensure all content respects the body boundaries */
-            body > * {
-              max-width: 100% !important;
-              max-height: 100% !important;
-              position: relative !important;
-            }
-            /* Handle plots and visualizations */
-            canvas, svg {
-              max-width: 100% !important;
-              max-height: 100% !important;
-            }
-            /* Specific adjustments for common plot containers */
-            .plotly, .plot-container, #plot, #chart, .chart-container {
-              width: 100% !important;
-              height: 100% !important;
-              max-width: 100% !important;
-              max-height: 100% !important;
-            }
-            /* Ensure labels and text elements stay within bounds */
-            .plotly .main-svg, .plotly-graph-div {
-              overflow: visible !important;
-            }
-            /* Add some breathing room for labels */
-            .plotly .infolayer {
-              clip-path: inset(0px 10px 10px 10px) !important;
-            }
-          `;
-          
-          // Append to head
-          const head = iframeDoc.head || iframeDoc.getElementsByTagName('head')[0];
-          if (head) {
-            head.appendChild(style);
-          }
-        } catch (e) {
-          console.log('Cannot access iframe content due to cross-origin restrictions');
-        }
-      };
-    }
 
     // Background animation code
     const bgCanvas = document.getElementById('bgCanvas');
@@ -973,7 +919,7 @@
       }
     }
 
-    // Initialize background elements - 50 DNA + 50 RNA + 150 circular particles
+    // Initialize background elements
     const dnaParticles = Array.from({ length: 50 }, () => {
       const particle = new Particle();
       particle.type = 'miniDNA';
