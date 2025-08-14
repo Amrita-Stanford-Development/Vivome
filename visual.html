@@ -688,18 +688,18 @@
       let title = '';
       
       if (mode === 'supervised') {
-        src = '3D plots/Supervised.html';
+        src = 'Supervised.html';
         title = 'Supervised Learning Visualization';
       } else if (mode === 'unsupervised') {
-        src = '3D plots/Unsupervised.html';
+        src = 'Unsupervised.html';
         title = 'Unsupervised Learning Visualization';
       } else if (mode === 'miscellaneous') {
-        src = '3D plots/Miscellaneous.html';
+        src = 'Miscellaneous.html';
         title = 'Miscellaneous Analysis Visualization';
       } else {
         const rna = values[rnaSliderVertical ? rnaSliderVertical.value : 0];
         const prot = values[protSliderVertical ? protSliderVertical.value : 0];
-        src = `3D plots/PCA3D_semi_r${rna}_p${prot}.html`;
+        src = `PCA3D_semi_r${rna}_p${prot}.html`;
         title = `Semi-Supervised Learning (RNA: ${rna}%, Prot: ${prot}%)`;
       }
       
