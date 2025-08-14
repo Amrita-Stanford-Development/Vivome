@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Visualization</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     body {
       margin: 0;
@@ -11,32 +11,19 @@
       color: #000;
       font-family: "Poppins", sans-serif;
       display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: flex-start;
-      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       padding: 20px;
       position: relative;
-      gap: 30px;
       overflow: hidden;
+      transition: all 0.3s ease;
     }
     
-    @media (max-width: 1200px) {
-      body {
-        padding: 15px;
-        gap: 20px;
-      }
+    body.modal-open {
+      background: rgba(0, 0, 0, 0.7);
     }
     
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-        padding: 10px;
-        gap: 15px;
-        height: auto;
-        min-height: 100vh;
-      }
-    }
     #bgCanvas {
       position: fixed;
       top: 0;
@@ -44,163 +31,528 @@
       width: 100%;
       height: 100%;
       z-index: -1;
+      transition: filter 0.3s ease;
     }
+    
+    body.modal-open #bgCanvas {
+      filter: blur(3px) brightness(0.3);
+    }
+    
+    .menu-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      max-width: 900px;
+      width: 100%;
+      position: relative;
+    }
+    
+    .menu-container.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.8);
+    }
+    
     .controls { 
-      width: 300px;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      flex-shrink: 0;
+      width: 100%;
+      padding: 40px;
+      background: rgba(248, 249, 250, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        0 15px 30px rgba(0, 0, 0, 0.1),
+        0 5px 15px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transform: translateY(-10px);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    
+    .controls:hover {
+      transform: translateY(-15px);
+      box-shadow: 
+        0 35px 70px rgba(0, 0, 0, 0.2),
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        0 10px 25px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+    }
+    
+    .parameter-title {
+      margin: 0 0 24px 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .parameter-group { 
+      margin-bottom: 20px;
+    }
+    
+    .parameter-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+      font-size: 12px;
+      text-align: center;
+    }
+    
+    .parameter-value {
+      color: #007bff;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .vertical-slider {
+      width: 100%;
+      height: 120px;
+      margin: 10px 0;
+      -webkit-appearance: slider-vertical;
+      appearance: slider-vertical;
+      background: #ddd;
+      outline: none;
+      border-radius: 4px;
+    }
+    
+    .vertical-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #007bff;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .vertical-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #007bff;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .controls-left {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      height: fit-content;
-      align-self: center;
     }
-    .sliders { display: none; margin-top: 10px; }
-    .sliders div { margin-top: 10px; }
-    iframe { 
-      width: 65%; 
-      height: calc(100vh - 40px); 
-      border: none; 
-      margin: 0;
+    
+    .controls-right {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .controls-title {
+      margin: 0 0 30px 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      grid-column: 1 / -1;
+    }
+    
+    .explanation-title {
+      margin: 0 0 20px 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .explanation-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #555;
+      text-align: justify;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+    
+    .explanation-content.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .explanation-content p {
+      margin: 0 0 14px 0;
+    }
+    
+    .explanation-content p:last-child {
+      margin-bottom: 0;
+    }
+    
+    .highlight {
+      background: linear-gradient(120deg, rgba(0, 123, 255, 0.1) 0%, rgba(0, 123, 255, 0.05) 100%);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    
+    .radio-option {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 16px 20px;
       border-radius: 12px;
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.15),
-        0 8px 16px rgba(0, 0, 0, 0.1),
-        0 4px 8px rgba(0, 0, 0, 0.08);
-      transform: translateY(-4px);
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transition: all 0.2s ease;
+      position: relative;
+      font-weight: 500;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 2px solid transparent;
+    }
+    
+    .radio-option:hover {
+      background: rgba(255, 255, 255, 0.8);
+      transform: translateX(5px);
+    }
+    
+    .radio-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+    
+    .radio-custom {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #ddd;
+      border-radius: 50%;
+      margin-right: 16px;
+      transition: all 0.2s ease;
+      position: relative;
+      flex-shrink: 0;
+    }
+    
+    .radio-option input[type="radio"]:checked + .radio-custom {
+      border-color: #007bff;
+      background-color: #007bff;
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+    }
+    
+    .radio-option input[type="radio"]:checked + .radio-custom::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: white;
+    }
+    
+    .radio-option input[type="radio"]:checked ~ span {
+      color: #007bff;
+      font-weight: 600;
+    }
+    
+    .sliders { 
+      display: none !important;
+    }
+    
+    .create-plot-btn {
+      width: 100%;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: "Poppins", sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .create-plot-btn:hover {
+      background: linear-gradient(135deg, #0056b3, #004085);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+    }
+    
+    .create-plot-btn:active {
+      transform: translateY(0);
+    }
+    
+    .plot-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      padding: 20px;
+    }
+    
+    .plot-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .plot-container {
+      width: 80%;
+      max-width: 1200px;
+      height: 90%;
+      max-height: 900px;
       background: #fff;
-      flex-grow: 1;
-      min-height: 500px;
-      overflow: hidden;
-      padding: 0;
-    }
-    
-    @media (max-width: 1200px) {
-      iframe {
-        width: 60%;
-        height: calc(100vh - 50px);
-      }
-    }
-    
-    @media (max-width: 768px) {
-      iframe {
-        width: 100%;
-        height: calc(100vh - 200px);
-        min-height: 400px;
-        flex-grow: 1;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      iframe {
-        height: calc(100vh - 180px);
-        min-height: 350px;
-      }
-    }
-    iframe:hover {
-      transform: translateY(-8px);
+      border-radius: 20px;
       box-shadow: 
-        0 32px 64px rgba(0, 0, 0, 0.2),
-        0 16px 32px rgba(0, 0, 0, 0.15),
-        0 8px 16px rgba(0, 0, 0, 0.1);
+        0 50px 100px rgba(0, 0, 0, 0.3),
+        0 25px 50px rgba(0, 0, 0, 0.2),
+        0 10px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      transform: scale(0.8) translateY(50px);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
     }
+    
+    .plot-modal.active .plot-container {
+      transform: scale(1) translateY(0);
+    }
+    
+    .plot-header {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .plot-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    .back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    
+    iframe {
+      width: 100%;
+      height: calc(100% - 80px);
+      border: none;
+      background: #fff;
+    }
+    
     #backButton {
       position: absolute;
       top: 20px;
       left: 20px;
       padding: 12px 20px;
-      background: #f8f9fa;
+      background: rgba(248, 249, 250, 0.95);
       color: #000;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       font-family: "Poppins", sans-serif;
       font-weight: 500;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       transition: all 0.2s ease;
       z-index: 10;
+      backdrop-filter: blur(10px);
     }
+    
     #backButton:hover { 
-      background: #e9ecef;
+      background: rgba(233, 236, 239, 0.95);
       transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
     
     @media (max-width: 768px) {
-      #backButton {
-        top: 10px;
-        left: 10px;
-        padding: 10px 16px;
-        font-size: 14px;
+      .controls {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 30px;
       }
-    }
-    input[type="radio"] {
-      margin-right: 8px;
-    }
-    label {
-      color: #000;
-      font-weight: 500;
+      
+      .controls-title {
+        font-size: 24px;
+      }
+      
+      .plot-container {
+        width: 95%;
+        height: 95%;
+      }
+      
+      .plot-header {
+        padding: 15px 20px;
+      }
+      
+      .plot-title {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
   <canvas id="bgCanvas"></canvas>
   <button id="backButton" onclick="window.location.href='index.html'">Back</button>
-  <div class="controls">
-    <h3 class="controls-title">Select Mode</h3>
-    <div class="radio-group">
-      <label class="radio-option">
-        <input type="radio" name="mode" value="supervised" checked>
-        <span class="radio-custom"></span>
-        Supervised
-      </label>
-      <label class="radio-option">
-        <input type="radio" name="mode" value="semisupervised">
-        <span class="radio-custom"></span>
-        Semi-Supervised
-      </label>
-      <label class="radio-option">
-        <input type="radio" name="mode" value="unsupervised">
-        <span class="radio-custom"></span>
-        Unsupervised
-      </label>
-      <label class="radio-option">
-        <input type="radio" name="mode" value="miscellaneous">
-        <span class="radio-custom"></span>
-        Miscellaneous
-      </label>
-    </div>
-    <div class="sliders" id="sliders">
-      <h4 class="slider-title">Parameters</h4>
-      <div class="slider-group">
-        <label class="slider-label">RNA Label Percentage: <span id="rnaVal" class="slider-value">5</span>%</label>
-        <input type="range" id="rnaSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="rnaTicks">
-        <datalist id="rnaTicks">
-          <option value="0" label="5"></option>
-          <option value="1" label="10"></option>
-          <option value="2" label="25"></option>
-          <option value="3" label="50"></option>
-          <option value="4" label="75"></option>
-        </datalist>
+  
+  <div class="menu-container" id="menuContainer">
+    <div class="parameter-card" id="parameterCard">
+      <h4 class="parameter-title">Parameters</h4>
+      <div class="parameter-group">
+        <label class="parameter-label">RNA: <span id="rnaValVertical" class="parameter-value">5</span>%</label>
+        <input type="range" id="rnaSliderVertical" min="0" max="4" step="1" value="0" class="vertical-slider" orient="vertical">
       </div>
-      <div class="slider-group">
-        <label class="slider-label">Proteomics Label Percentage: <span id="protVal" class="slider-value">5</span>%</label>
-        <input type="range" id="protSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="protTicks">
-        <datalist id="protTicks">
-          <option value="0" label="5"></option>
-          <option value="1" label="10"></option>
-          <option value="2" label="25"></option>
-          <option value="3" label="50"></option>
-          <option value="4" label="75"></option>
-        </datalist>
+      <div class="parameter-group">
+        <label class="parameter-label">Prot: <span id="protValVertical" class="parameter-value">5</span>%</label>
+        <input type="range" id="protSliderVertical" min="0" max="4" step="1" value="0" class="vertical-slider" orient="vertical">
+      </div>
+    </div>
+    
+    <div class="controls">
+      <h3 class="controls-title">Select Visualization Mode</h3>
+      
+      <div class="controls-left">
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="mode" value="supervised" checked>
+            <span class="radio-custom"></span>
+            <span>Supervised Learning</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="mode" value="semisupervised">
+            <span class="radio-custom"></span>
+            <span>Semi-Supervised Learning</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="mode" value="unsupervised">
+            <span class="radio-custom"></span>
+            <span>Unsupervised Learning</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="mode" value="miscellaneous">
+            <span class="radio-custom"></span>
+            <span>Miscellaneous Analysis</span>
+          </label>
+        </div>
+        
+        <div class="sliders" id="sliders">
+          <h4 class="slider-title">Parameter Configuration</h4>
+          <div class="slider-group">
+            <label class="slider-label">RNA Label Percentage: <span id="rnaVal" class="slider-value">5</span>%</label>
+            <input type="range" id="rnaSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="rnaTicks">
+            <datalist id="rnaTicks">
+              <option value="0" label="5"></option>
+              <option value="1" label="10"></option>
+              <option value="2" label="25"></option>
+              <option value="3" label="50"></option>
+              <option value="4" label="75"></option>
+            </datalist>
+          </div>
+          <div class="slider-group">
+            <label class="slider-label">Proteomics Label Percentage: <span id="protVal" class="slider-value">5</span>%</label>
+            <input type="range" id="protSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="protTicks">
+            <datalist id="protTicks">
+              <option value="0" label="5"></option>
+              <option value="1" label="10"></option>
+              <option value="2" label="25"></option>
+              <option value="3" label="50"></option>
+              <option value="4" label="75"></option>
+            </datalist>
+          </div>
+        </div>
+        
+        <div class="sliders" id="sliders">
+          <h4 class="slider-title">Parameter Configuration</h4>
+          <div class="slider-group">
+            <label class="slider-label">RNA Label Percentage: <span id="rnaVal" class="slider-value">5</span>%</label>
+            <input type="range" id="rnaSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="rnaTicks">
+            <datalist id="rnaTicks">
+              <option value="0" label="5"></option>
+              <option value="1" label="10"></option>
+              <option value="2" label="25"></option>
+              <option value="3" label="50"></option>
+              <option value="4" label="75"></option>
+            </datalist>
+          </div>
+          <div class="slider-group">
+            <label class="slider-label">Proteomics Label Percentage: <span id="protVal" class="slider-value">5</span>%</label>
+            <input type="range" id="protSlider" min="0" max="4" step="1" value="0" class="custom-slider" list="protTicks">
+            <datalist id="protTicks">
+              <option value="0" label="5"></option>
+              <option value="1" label="10"></option>
+              <option value="2" label="25"></option>
+              <option value="3" label="50"></option>
+              <option value="4" label="75"></option>
+            </datalist>
+          </div>
+        </div>
+        
+        <button class="create-plot-btn" onclick="createPlot()">Create Plot</button>
+      </div>
+      
+      <div class="controls-right">
+        <h4 class="explanation-title">About This Mode</h4>
+        
+        <div id="explanationContainer">
+          <div id="supervisedExplanation" class="explanation-content active">
+            <p>The <span class="highlight">Supervised Learning</span> visualization displays data where all samples have known labels and classifications.</p>
+            <p>This mode is ideal for understanding how different cell types cluster when their identities are already established, allowing you to validate classification algorithms and explore pattern recognition.</p>
+            <p>Use this visualization to examine the separation between different biological conditions and identify potential biomarkers.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <iframe id="contentFrame" src="3D Plots/Supervised.html"></iframe>
+  
+  <div class="plot-modal" id="plotModal">
+    <div class="plot-container">
+      <div class="plot-header">
+        <h2 class="plot-title" id="plotTitle">Visualization</h2>
+        <button class="back-btn" onclick="closePlot()">← Back to Menu</button>
+      </div>
+      <iframe id="contentFrame" src=""></iframe>
+    </div>
+  </div>
+
   <script>
     const modeRadios = document.querySelectorAll('input[name="mode"]');
     const slidersDiv = document.getElementById('sliders');
@@ -208,7 +560,6 @@
     const protSlider = document.getElementById('protSlider');
     const rnaValEl = document.getElementById('rnaVal');
     const protValEl = document.getElementById('protVal');
-    const iframe = document.getElementById('contentFrame');
     const values = [5,10,25,50,75];
 
     function updateSliderDisplays() {
@@ -216,34 +567,97 @@
       protValEl.textContent = values[protSlider.value];
     }
 
-    function updateIframe() {
+    function updateSliders() {
       const mode = document.querySelector('input[name="mode"]:checked').value;
-      if (mode === 'supervised') {
-        slidersDiv.style.display = 'none';
-        iframe.src = '3D Plots/Supervised.html';
-      } else if (mode === 'unsupervised') {
-        slidersDiv.style.display = 'none';
-        iframe.src = '3D Plots/Unsupervised.html';
-      } else if (mode === 'miscellaneous') {
-        slidersDiv.style.display = 'none';
-        iframe.src = '3D Plots/Miscellaneous.html';
-      } else {
+      if (mode === 'semisupervised') {
         slidersDiv.style.display = 'block';
-        const rna = values[rnaSlider.value];
-        const prot = values[protSlider.value];
-        iframe.src = '3D Plots/PCA3D_semi_r' + rna + '_p' + prot + '.html';
+      } else {
+        slidersDiv.style.display = 'none';
       }
-      
-      // Re-inject CSS when iframe content changes
-      setTimeout(injectIframeCSS, 100);
+      updateExplanation(mode);
     }
 
-    modeRadios.forEach(r => r.addEventListener('change', updateIframe));
-    rnaSlider.addEventListener('input', () => { updateSliderDisplays(); updateIframe(); });
-    protSlider.addEventListener('input', () => { updateSliderDisplays(); updateIframe(); });
+    function updateExplanation(mode) {
+      const container = document.getElementById('explanationContainer');
+      const supervisedExplanation = document.getElementById('supervisedExplanation');
+      
+      if (mode === 'supervised') {
+        supervisedExplanation.style.display = 'block';
+      } else {
+        supervisedExplanation.style.display = 'none';
+      }
+    }
+
+    function createPlot() {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      const iframe = document.getElementById('contentFrame');
+      const plotTitle = document.getElementById('plotTitle');
+      const menuContainer = document.getElementById('menuContainer');
+      const plotModal = document.getElementById('plotModal');
+      const body = document.body;
+      
+      // Set iframe source and title based on mode
+      let src = '';
+      let title = '';
+      
+      if (mode === 'supervised') {
+        src = '3D Plots/Supervised.html';
+        title = 'Supervised Learning Visualization';
+      } else if (mode === 'unsupervised') {
+        src = '3D Plots/Unsupervised.html';
+        title = 'Unsupervised Learning Visualization';
+      } else if (mode === 'miscellaneous') {
+        src = '3D Plots/Miscellaneous.html';
+        title = 'Miscellaneous Analysis Visualization';
+      } else {
+        const rna = values[rnaSliderVertical ? rnaSliderVertical.value : 0];
+        const prot = values[protSliderVertical ? protSliderVertical.value : 0];
+        src = '3D Plots/PCA3D_semi_r' + rna + '_p' + prot + '.html';
+        title = `Semi-Supervised Learning (RNA: ${rna}%, Prot: ${prot}%)`;
+      }
+      
+      iframe.src = src;
+      plotTitle.textContent = title;
+      
+      // Show modal with animation
+      body.classList.add('modal-open');
+      menuContainer.classList.add('hidden');
+      setTimeout(() => {
+        plotModal.classList.add('active');
+      }, 150);
+      
+      // Re-inject CSS when iframe content changes
+      setTimeout(injectIframeCSS, 300);
+    }
+
+    function closePlot() {
+      const menuContainer = document.getElementById('menuContainer');
+      const plotModal = document.getElementById('plotModal');
+      const body = document.body;
+      
+      // Hide modal with animation
+      plotModal.classList.remove('active');
+      setTimeout(() => {
+        body.classList.remove('modal-open');
+        menuContainer.classList.remove('hidden');
+        document.getElementById('contentFrame').src = '';
+      }, 300);
+    }
+
+    modeRadios.forEach(r => r.addEventListener('change', updateSliders));
+    
+    // Add event listeners for vertical sliders
+    if (rnaSliderVertical && protSliderVertical) {
+      rnaSliderVertical.addEventListener('input', updateSliderDisplays);
+      protSliderVertical.addEventListener('input', updateSliderDisplays);
+    }
+
+    // Initialize
+    updateSliderDisplays();
+    updateSliders();
 
     updateSliderDisplays();
-    updateIframe();
+    updateSliders();
 
     // Function to inject CSS into iframe content
     function injectIframeCSS() {
@@ -266,10 +680,10 @@
               overflow: hidden !important;
             }
             body {
-              margin: 20px !important;
+              margin: 15px !important;
               padding: 0 !important;
-              width: calc(100% - 40px) !important;
-              height: calc(100% - 40px) !important;
+              width: calc(100% - 30px) !important;
+              height: calc(100% - 30px) !important;
               overflow: hidden !important;
               font-family: inherit !important;
               position: relative !important;
@@ -313,10 +727,7 @@
       };
     }
 
-    // Call the function initially and on each iframe update
-    injectIframeCSS();
-
-    // --- Enhanced Scientific Background Canvas Animation ---
+    // Background animation code
     const bgCanvas = document.getElementById('bgCanvas');
     const bgCtx = bgCanvas.getContext('2d');
 
