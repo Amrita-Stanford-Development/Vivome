@@ -171,6 +171,11 @@
       color: #333;
     }
     
+    #explanationContainer {
+      position: relative;
+      min-height: 200px;
+    }
+    
     .explanation-content {
       font-size: 15px;
       line-height: 1.6;
@@ -179,11 +184,16 @@
       opacity: 1;
       transform: translateY(0);
       transition: all 0.3s ease;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
     }
     
     .explanation-content.hidden {
       opacity: 0;
       transform: translateY(10px);
+      pointer-events: none;
     }
     
     .explanation-content p {
@@ -577,13 +587,29 @@
       </div>
       
       <div class="controls-right">
-        <h4 class="explanation-title">About This Mode</h4>
-        
         <div id="explanationContainer">
           <div id="supervisedExplanation" class="explanation-content">
             <p>The <span class="highlight">Supervised Learning</span> visualization displays data where all samples have known labels and classifications.</p>
             <p>This mode is ideal for understanding how different cell types cluster when their identities are already established, allowing you to validate classification algorithms and explore pattern recognition.</p>
             <p>Use this visualization to examine the separation between different biological conditions and identify potential biomarkers.</p>
+          </div>
+          
+          <div id="semisupervisedExplanation" class="explanation-content hidden">
+            <p>The <span class="highlight">Semi-Supervised Learning</span> visualization combines labeled and unlabeled data to reveal hidden patterns in your dataset.</p>
+            <p>This approach is particularly powerful when you have limited labeled samples but abundant unlabeled data, which is common in biological research.</p>
+            <p>Adjust the RNA and Proteomics label percentages to see how different amounts of labeled data affect the clustering and classification results.</p>
+          </div>
+          
+          <div id="unsupervisedExplanation" class="explanation-content hidden">
+            <p>The <span class="highlight">Unsupervised Learning</span> visualization explores data without prior knowledge of sample labels or classifications.</p>
+            <p>This mode is excellent for discovering unknown cell populations, identifying novel biomarkers, and understanding the natural structure of your biological data.</p>
+            <p>Use this approach to find unexpected patterns and relationships that might not be apparent through supervised methods.</p>
+          </div>
+          
+          <div id="miscellaneousExplanation" class="explanation-content hidden">
+            <p>The <span class="highlight">Miscellaneous Analysis</span> provides specialized visualization tools for advanced data exploration and quality control.</p>
+            <p>This mode includes various analytical approaches such as dimensionality reduction techniques, correlation analysis, and data quality assessment tools.</p>
+            <p>Perfect for preliminary data exploration and identifying potential issues or interesting features in your dataset before applying specific machine learning approaches.</p>
           </div>
         </div>
       </div>
@@ -629,11 +655,24 @@
         parameterCard.classList.remove('visible');
       }
       
-      updateExplanation();
+      updateExplanation(mode);
     }
 
     function updateExplanation(mode) {
-      // Keep only supervised explanation visible, no mode switching
+      const explanations = {
+        'supervised': document.getElementById('supervisedExplanation'),
+        'semisupervised': document.getElementById('semisupervisedExplanation'),
+        'unsupervised': document.getElementById('unsupervisedExplanation'),
+        'miscellaneous': document.getElementById('miscellaneousExplanation')
+      };
+      
+      // Hide all explanations first
+      Object.values(explanations).forEach(el => el.classList.add('hidden'));
+      
+      // Show the selected explanation
+      if (explanations[mode]) {
+        explanations[mode].classList.remove('hidden');
+      }
     }
 
     function createPlot() {
@@ -793,6 +832,15 @@
         const points = 8;
         const spacing = this.helixLength / points;
         
+        // Add rotation and tilt to make DNA not vertically straight
+        const rotation = this.helixPhase * 0.3; // Use helixPhase for consistent rotation per particle
+        const tilt = Math.sin(time * 0.1 + this.helixPhase) * 0.4; // Gentle swaying
+        
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(rotation + tilt);
+        ctx.translate(-this.x, -this.y);
+        
         // Draw first strand
         ctx.strokeStyle = 'rgba(0, 142, 204, 0.75)';
         ctx.lineWidth = 1.5;
@@ -841,11 +889,22 @@
           ctx.lineTo(x2, y);
           ctx.stroke();
         }
+        
+        ctx.restore();
       }
       
       drawMiniRNA(ctx, time, size) {
         const points = 8;
         const spacing = this.helixLength / points;
+        
+        // Add rotation and tilt to make RNA not vertically straight
+        const rotation = this.helixPhase * 0.4; // Slightly different rotation than DNA
+        const tilt = Math.sin(time * 0.12 + this.helixPhase) * 0.5; // Gentle swaying
+        
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(rotation + tilt);
+        ctx.translate(-this.x, -this.y);
         
         // Draw single RNA strand
         ctx.strokeStyle = 'rgba(220, 53, 69, 0.75)';
@@ -876,6 +935,8 @@
           ctx.arc(x, y, 1.2, 0, Math.PI * 2);
           ctx.fill();
         }
+        
+        ctx.restore();
       }
     }
 

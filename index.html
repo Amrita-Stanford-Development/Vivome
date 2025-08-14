@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VivOME – A Living Joint Atlas for Single-Cell Omics</title>
+  <title>VivOME – A Living Joint Latent Atlas for Single-Cell Omics</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -248,12 +248,19 @@
           this.helixPhase = Math.random() * Math.PI * 2;
           this.helixLength = Math.random() * 30 + 20; // Length of the mini helix
           this.helixAmplitude = Math.random() * 8 + 4; // Small amplitude for mini helixes
+          this.rotation = Math.random() * Math.PI; // Random rotation from 0 to 180 degrees
+          this.rotationSpeed = (Math.random() - 0.5) * 0.01; // Slow rotation over time
         }
       }
 
       update(time) {
         this.y += this.speedY;
         this.x += this.speedX + Math.sin(time * 0.42 + this.pulsePhase) * 0.17; // Reduced by 15%
+        
+        // Update rotation for DNA/RNA helixes
+        if (this.type === 'miniDNA' || this.type === 'miniRNA') {
+          this.rotation += this.rotationSpeed;
+        }
         
         if (this.y < -50) {
           this.reset();
@@ -309,6 +316,10 @@
         const points = 8; // Fewer points for small helix
         const spacing = this.helixLength / points;
         
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation); // Apply rotation
+        
         // Draw first strand
         ctx.strokeStyle = 'rgba(0, 142, 204, 0.75)'; // Increased from 0.6 to 0.75
         ctx.lineWidth = 1.5; // Increased from 1 to 1.5
@@ -316,8 +327,8 @@
         
         for (let i = 0; i < points; i++) {
           const localY = i * spacing - this.helixLength / 2;
-          const x1 = this.x + Math.sin(time * 0.3 + this.helixPhase + i * 0.5) * this.helixAmplitude;
-          const y1 = this.y + localY;
+          const x1 = Math.sin(time * 0.3 + this.helixPhase + i * 0.5) * this.helixAmplitude;
+          const y1 = localY;
           
           if (i === 0) {
             ctx.moveTo(x1, y1);
@@ -331,8 +342,8 @@
         ctx.beginPath();
         for (let i = 0; i < points; i++) {
           const localY = i * spacing - this.helixLength / 2;
-          const x2 = this.x + Math.sin(time * 0.3 + this.helixPhase + i * 0.5 + Math.PI) * this.helixAmplitude;
-          const y2 = this.y + localY;
+          const x2 = Math.sin(time * 0.3 + this.helixPhase + i * 0.5 + Math.PI) * this.helixAmplitude;
+          const y2 = localY;
           
           if (i === 0) {
             ctx.moveTo(x2, y2);
@@ -348,20 +359,26 @@
         
         for (let i = 0; i < points; i += 2) {
           const localY = i * spacing - this.helixLength / 2;
-          const x1 = this.x + Math.sin(time * 0.3 + this.helixPhase + i * 0.5) * this.helixAmplitude;
-          const x2 = this.x + Math.sin(time * 0.3 + this.helixPhase + i * 0.5 + Math.PI) * this.helixAmplitude;
-          const y = this.y + localY;
+          const x1 = Math.sin(time * 0.3 + this.helixPhase + i * 0.5) * this.helixAmplitude;
+          const x2 = Math.sin(time * 0.3 + this.helixPhase + i * 0.5 + Math.PI) * this.helixAmplitude;
+          const y = localY;
           
           ctx.beginPath();
           ctx.moveTo(x1, y);
           ctx.lineTo(x2, y);
           ctx.stroke();
         }
+        
+        ctx.restore();
       }
       
       drawMiniRNA(ctx, time, size) {
         const points = 8; // Fewer points for small helix
         const spacing = this.helixLength / points;
+        
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation); // Apply rotation
         
         // Draw single RNA strand
         ctx.strokeStyle = 'rgba(220, 53, 69, 0.75)'; // Increased from 0.6 to 0.75
@@ -370,8 +387,8 @@
         
         for (let i = 0; i < points; i++) {
           const localY = i * spacing - this.helixLength / 2;
-          const x = this.x + Math.sin(time * 0.25 + this.helixPhase + i * 0.4) * this.helixAmplitude;
-          const y = this.y + localY;
+          const x = Math.sin(time * 0.25 + this.helixPhase + i * 0.4) * this.helixAmplitude;
+          const y = localY;
           
           if (i === 0) {
             ctx.moveTo(x, y);
@@ -385,13 +402,15 @@
         ctx.fillStyle = 'rgba(255, 193, 7, 0.7)'; // Increased from 0.5 to 0.7
         for (let i = 0; i < points; i += 2) {
           const localY = i * spacing - this.helixLength / 2;
-          const x = this.x + Math.sin(time * 0.25 + this.helixPhase + i * 0.4) * this.helixAmplitude;
-          const y = this.y + localY;
+          const x = Math.sin(time * 0.25 + this.helixPhase + i * 0.4) * this.helixAmplitude;
+          const y = localY;
           
           ctx.beginPath();
           ctx.arc(x, y, 1.2, 0, Math.PI * 2); // Increased size from 1 to 1.2
           ctx.fill();
         }
+        
+        ctx.restore();
       }
     }
 
