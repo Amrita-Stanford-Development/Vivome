@@ -9,11 +9,25 @@
     *, *::before, *::after { box-sizing: border-box; }
     body {
       margin: 0;
-      background: #000;
-      color: #fff;
+      background: #fff;
+      color: #000;
       font-family: "Poppins", sans-serif;
-      display: flex;
       height: 100vh;
+      overflow: hidden;
+    }
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    .container {
+      display: flex;
+      height: 100%;
+      position: relative;
+      z-index: 1;
     }
     .left {
       flex: 1;
@@ -25,51 +39,182 @@
     }
     .left h1 {
       font-size: 9rem;
-      margin: 0 0 1rem 0;
+      margin: 0 0 0.1rem 0;
       font-weight: 700;
-      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: rgb(0, 210, 255);
+      animation: breathing 6s ease-in-out infinite;
+      text-shadow:
+        2px 2px 8px rgba(0,0,0,0.5),
+        0 0 8px rgba(0, 210, 255, 0.5),
+        0 0 16px rgba(0, 210, 255, 0.4),
+        0 0 24px rgba(0, 210, 255, 0.3);
+    }
+
+    @keyframes breathing {
+      0%, 100% { 
+        text-shadow: 
+          2px 2px 8px rgba(0,0,0,0.5),
+          0 0 8px rgba(0, 210, 255, 0.5),
+          0 0 16px rgba(0, 210, 255, 0.4),
+          0 0 24px rgba(0, 210, 255, 0.3);
+      }
+      50% { 
+        text-shadow: 
+          2px 2px 8px rgba(0,0,0,0.5),
+          0 0 12px rgba(0, 210, 255, 0.6),
+          0 0 24px rgba(0, 210, 255, 0.5),
+          0 0 36px rgba(0, 210, 255, 0.4);
+      }
     }
     .left p {
       font-size: 1.5rem;
       margin: 0;
+      color: #333;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
     }
     .right {
       flex: 1;
       position: relative;
     }
-    canvas {
+    #scene {
       width: 100%;
       height: 100%;
       display: block;
+      cursor: pointer;
     }
-    #tooltip {
+    .overlay-label {
       position: absolute;
-      background: rgba(0, 0, 0, 0.7);
-      color: #fff;
+      color: #000;
+      font-size: 1rem;
+      font-weight: 700;
       padding: 4px 8px;
       border-radius: 4px;
-      font-size: 0.9rem;
       pointer-events: none;
-      display: none;
+      white-space: nowrap;
+      background: transparent;
+      text-shadow: 1px 1px 3px rgba(255,255,255,0.8);
     }
   </style>
 </head>
 <body>
-  <div class="left">
-    <h1>VivOME</h1>
-    <p>A Living Joint Latent Atlas for Single-Cell Omics</p>
-  </div>
-  <div class="right">
-    <canvas id="scene"></canvas>
-    <div id="tooltip"></div>
+  <canvas id="bgCanvas"></canvas>
+  <div class="container">
+    <div class="left">
+      <h1 id="title">VivOME</h1>
+      <p id="subtitle">A Living Joint Latent Atlas for Single-Cell Omics</p>
+    </div>
+    <div class="right">
+      <canvas id="scene"></canvas>
+      <div id="label0" class="overlay-label">Documentation</div>
+      <div id="label1" class="overlay-label">Visual</div>
+      <div id="label2" class="overlay-label">Code</div>
+      <div id="label3" class="overlay-label">Extra</div>
+    </div>
   </div>
 
   <script>
+    const bgCanvas = document.getElementById('bgCanvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+
+    function resizeBg() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeBg);
+    resizeBg();
+
+    const balls = Array.from({ length: 200 }, () => ({
+      x: Math.random() * bgCanvas.width,
+      y: Math.random() * bgCanvas.height,
+      r: Math.random() * 4 + 3,
+      alpha: Math.random() * 0.3 + 0.1,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: (Math.random() - 0.5) * 0.3
+    }));
+
+    const bondingBallsCount = 150;
+    let connections = [];
+    const maxDist = 90;
+
+    function drawBackground() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      const noGoAreas = [titleEl, subtitleEl].map(el => {
+        const rect = el.getBoundingClientRect();
+        return { x: rect.left - 15, y: rect.top - 10, width: rect.width + 30, height: rect.height + 20 };
+      });
+
+      connections = connections.filter(conn => {
+        const dx = balls[conn.a].x - balls[conn.b].x;
+        const dy = balls[conn.a].y - balls[conn.b].y;
+        return Math.sqrt(dx * dx + dy * dy) < maxDist;
+      });
+
+      for (let i = 0; i < bondingBallsCount; i++) {
+        for (let j = i + 1; j < bondingBallsCount; j++) {
+          const dx = balls[i].x - balls[j].x;
+          const dy = balls[i].y - balls[j].y;
+          if (Math.sqrt(dx * dx + dy * dy) < maxDist && Math.random() < 0.0008) {
+            if (!connections.find(c => c.a === i && c.b === j)) {
+              connections.push({ a: i, b: j });
+            }
+          }
+        }
+      }
+
+      connections.forEach(conn => {
+        const ballA = balls[conn.a];
+        const ballB = balls[conn.b];
+        const insideNoGo = noGoAreas.some(area =>
+          (ballA.x > area.x && ballA.x < area.x + area.width &&
+           ballA.y > area.y && ballA.y < area.y + area.height) ||
+          (ballB.x > area.x && ballB.x < area.x + area.width &&
+           ballB.y > area.y && ballB.y < area.y + area.height)
+        );
+        if (!insideNoGo) {
+          bgCtx.strokeStyle = `rgba(200,200,200,0.6)`;
+          bgCtx.lineWidth = 1.5;
+          bgCtx.beginPath();
+          bgCtx.moveTo(ballA.x, ballA.y);
+          bgCtx.lineTo(ballB.x, ballB.y);
+          bgCtx.stroke();
+        }
+      });
+
+      balls.forEach(b => {
+        b.x += b.speedX;
+        b.y += b.speedY;
+
+        if (b.x < b.r || b.x > bgCanvas.width - b.r) b.speedX *= -1;
+        if (b.y < b.r || b.y > bgCanvas.height - b.r) b.speedY *= -1;
+
+        let blocked = false;
+        noGoAreas.forEach(area => {
+          if (b.x - b.r < area.x + area.width &&
+              b.x + b.r > area.x &&
+              b.y - b.r < area.y + area.height &&
+              b.y + b.r > area.y) {
+            blocked = true;
+            b.speedX *= -1;
+            b.speedY *= -1;
+          }
+        });
+
+        if (!blocked) {
+          bgCtx.fillStyle = `rgba(200,200,200,1)`;
+          bgCtx.beginPath();
+          bgCtx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+          bgCtx.fill();
+        }
+      });
+
+      requestAnimationFrame(drawBackground);
+    }
+    drawBackground();
+
     const canvas = document.getElementById('scene');
     const ctx = canvas.getContext('2d');
-    const tooltip = document.getElementById('tooltip');
 
     function resize() {
       canvas.width = canvas.clientWidth;
@@ -78,84 +223,113 @@
     window.addEventListener('resize', resize);
     resize();
 
+    const sectionHeight = canvas.height / 4; // 4 vertical slices
+    const horizontalMargin = canvas.width * 0.30; // slightly more horizontal space than last time
+    const verticalPadding = 20;
+    const labelPadding = 10;
+    const ballRadius = 42; // bigger balls
+
     const circles = [
-      { x: canvas.width * 0.3, y: canvas.height * 0.25, r: 40, color: '#ff6b6b', url: 'documentation.html', vx: 0.2, vy: 0.15 },
-      { x: canvas.width * 0.7, y: canvas.height * 0.5,  r: 40, color: '#f0a500', url: 'visual.html',        vx: -0.15, vy: 0.1 },
-      { x: canvas.width * 0.3, y: canvas.height * 0.75, r: 40, color: '#4ecdc4', url: 'code.html',          vx: 0.1, vy: -0.2 },
+      { x: canvas.width * 0.5, y: sectionHeight * 0.5, r: ballRadius, color: '#ff073a', url: 'documentation.html', vx: 0.4, vy: 0.3, section: 0 },
+      { x: canvas.width * 0.5, y: sectionHeight * 1.5, r: ballRadius, color: '#39ff14', url: 'visual.html', vx: -0.35, vy: 0.25, section: 1 },
+      { x: canvas.width * 0.5, y: sectionHeight * 2.5, r: ballRadius, color: '#00f0ff', url: 'code.html', vx: 0.35, vy: -0.3, section: 2 },
+      { x: canvas.width * 0.5, y: sectionHeight * 3.5, r: ballRadius, color: '#ffa500', url: 'extra.html', vx: 0.3, vy: -0.25, section: 3 }
     ];
+
+    function updateLabels() {
+      circles.forEach((c, i) => {
+        const label = document.getElementById(`label${i}`);
+        label.style.left = `${c.x - label.offsetWidth / 2}px`;
+        label.style.top = `${c.y - c.r - labelPadding - label.offsetHeight}px`;
+      });
+    }
+
+    function updateSpeeds() {
+      circles.forEach(c => {
+        c.vx += (Math.random() - 0.5) * 0.1;
+        c.vy += (Math.random() - 0.5) * 0.1;
+        c.vx = Math.max(Math.min(c.vx, 0.6), -0.6);
+        c.vy = Math.max(Math.min(c.vy, 0.6), -0.6);
+      });
+    }
+    setInterval(updateSpeeds, 2000);
 
     function drawCircle(c, time, index) {
       const radius = c.r * (1 + 0.1 * Math.sin(time + index));
+      const glow = 25 + 10 * Math.sin(time + index);
+
       ctx.save();
-      ctx.beginPath();
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = glow;
       ctx.shadowColor = c.color;
       ctx.fillStyle = c.color;
+      ctx.beginPath();
       ctx.arc(c.x, c.y, radius, 0, Math.PI * 2);
       ctx.fill();
+
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, radius + 2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fill();
+
       ctx.restore();
-      c.radius = radius; // store for hover detection
+      c.radius = radius;
+    }
+
+    function drawConnections() {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(85, 85, 85, 0.4)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      circles.forEach((c, i) => {
+        if (i < circles.length - 1) {
+          ctx.moveTo(c.x, c.y);
+          ctx.lineTo(circles[i + 1].x, circles[i + 1].y);
+        }
+      });
+      ctx.stroke();
+      ctx.restore();
     }
 
     function update(c) {
       c.x += c.vx;
       c.y += c.vy;
       const r = c.radius || c.r;
-      if (c.x - r < 0 || c.x + r > canvas.width) c.vx *= -1;
-      if (c.y - r < 0 || c.y + r > canvas.height) c.vy *= -1;
+      const leftBound = horizontalMargin + r;
+      const rightBound = canvas.width - horizontalMargin - r;
+      const sectionMargin = sectionHeight * 0.2;
+      const topBound = c.section * sectionHeight + r + verticalPadding + sectionMargin;
+      const bottomBound = (c.section + 1) * sectionHeight - r - verticalPadding - sectionMargin;
+      if (c.x < leftBound || c.x > rightBound) c.vx *= -1;
+      if (c.y < topBound || c.y > bottomBound) c.vy *= -1;
     }
+
+    canvas.addEventListener('click', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      circles.forEach(c => {
+        const dist = Math.sqrt((mouseX - c.x) ** 2 + (mouseY - c.y) ** 2);
+        if (dist <= c.radius) {
+          window.location.href = c.url;
+        }
+      });
+    });
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const time = Date.now() * 0.002;
+      drawConnections();
       circles.forEach((c, i) => {
         update(c);
         drawCircle(c, time, i);
       });
+      updateLabels();
       requestAnimationFrame(animate);
     }
     animate();
-
-    function getMousePos(evt) {
-      const rect = canvas.getBoundingClientRect();
-      return {
-        x: evt.clientX - rect.left,
-        y: evt.clientY - rect.top
-      };
-    }
-
-    canvas.addEventListener('mousemove', (e) => {
-      const pos = getMousePos(e);
-      const hit = circles.find(c => {
-        const dx = pos.x - c.x;
-        const dy = pos.y - c.y;
-        return Math.sqrt(dx*dx + dy*dy) <= c.radius;
-      });
-      if (hit) {
-        tooltip.style.display = 'block';
-        tooltip.textContent = hit.url;
-        tooltip.style.left = `${pos.x + 10}px`;
-        tooltip.style.top = `${pos.y + 10}px`;
-      } else {
-        tooltip.style.display = 'none';
-      }
-    });
-
-    canvas.addEventListener('mouseleave', () => {
-      tooltip.style.display = 'none';
-    });
-
-    canvas.addEventListener('click', (e) => {
-      const pos = getMousePos(e);
-      const hit = circles.find(c => {
-        const dx = pos.x - c.x;
-        const dy = pos.y - c.y;
-        return Math.sqrt(dx*dx + dy*dy) <= c.radius;
-      });
-      if (hit) {
-        window.location.href = hit.url;
-      }
-    });
   </script>
 </body>
 </html>
