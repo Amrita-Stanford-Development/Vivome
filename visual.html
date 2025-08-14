@@ -11,13 +11,82 @@
       color: #fff;
       font-family: "Poppins", sans-serif;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       height: 100vh;
+      padding-top: 20px;
     }
+    .controls { text-align: center; }
+    .sliders { display: none; margin-top: 10px; }
+    .sliders div { margin-top: 10px; }
+    iframe { width: 90%; height: 80vh; border: none; margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h1>Visualization Placeholder</h1>
+  <div class="controls">
+    <label><input type="radio" name="mode" value="supervised" checked> Supervised</label>
+    <label style="margin-left:20px"><input type="radio" name="mode" value="semisupervised"> Semi Supervised</label>
+    <div class="sliders" id="sliders">
+      <div>
+        <label>RNA label Percentage: <span id="rnaVal">5</span></label><br>
+        <input type="range" id="rnaSlider" min="0" max="4" step="1" value="0" list="rnaTicks">
+        <datalist id="rnaTicks">
+          <option value="0" label="5"></option>
+          <option value="1" label="10"></option>
+          <option value="2" label="25"></option>
+          <option value="3" label="50"></option>
+          <option value="4" label="75"></option>
+        </datalist>
+      </div>
+      <div>
+        <label>Proteomics Label Percentage: <span id="protVal">5</span></label><br>
+        <input type="range" id="protSlider" min="0" max="4" step="1" value="0" list="protTicks">
+        <datalist id="protTicks">
+          <option value="0" label="5"></option>
+          <option value="1" label="10"></option>
+          <option value="2" label="25"></option>
+          <option value="3" label="50"></option>
+          <option value="4" label="75"></option>
+        </datalist>
+      </div>
+    </div>
+  </div>
+  <iframe id="contentFrame" src="Supervised.html"></iframe>
+  <script>
+    const modeRadios = document.querySelectorAll('input[name="mode"]');
+    const slidersDiv = document.getElementById('sliders');
+    const rnaSlider = document.getElementById('rnaSlider');
+    const protSlider = document.getElementById('protSlider');
+    const rnaValEl = document.getElementById('rnaVal');
+    const protValEl = document.getElementById('protVal');
+    const iframe = document.getElementById('contentFrame');
+    const values = [5,10,25,50,75];
+
+    function updateSliderDisplays() {
+      rnaValEl.textContent = values[rnaSlider.value];
+      protValEl.textContent = values[protSlider.value];
+    }
+
+    function updateIframe() {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      if (mode === 'supervised') {
+        slidersDiv.style.display = 'none';
+        iframe.src = 'Supervised.html';
+      } else {
+        slidersDiv.style.display = 'block';
+        const rna = values[rnaSlider.value];
+        const prot = values[protSlider.value];
+        iframe.src = 'Semi%20Supervised/PCA3D_semi_r' + rna + '_p' + prot + '.html';
+      }
+    }
+
+    modeRadios.forEach(r => r.addEventListener('change', updateIframe));
+    rnaSlider.addEventListener('input', () => { updateSliderDisplays(); updateIframe(); });
+    protSlider.addEventListener('input', () => { updateSliderDisplays(); updateIframe(); });
+
+    updateSliderDisplays();
+    updateIframe();
+  </script>
 </body>
 </html>
