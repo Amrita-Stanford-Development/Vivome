@@ -75,17 +75,8 @@
       background: #fff;
       flex-grow: 1;
       min-height: 500px;
-    }
-    
-    /* Force iframe content to fit properly */
-    iframe::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
+      overflow: hidden;
+      padding: 0;
     }
     
     @media (max-width: 1200px) {
@@ -267,19 +258,30 @@
             * {
               box-sizing: border-box;
             }
-            html, body {
+            html {
               margin: 0 !important;
-              padding: 15px !important;
+              padding: 0 !important;
               width: 100% !important;
               height: 100% !important;
               overflow: hidden !important;
-              font-family: inherit !important;
             }
+            body {
+              margin: 20px !important;
+              padding: 0 !important;
+              width: calc(100% - 40px) !important;
+              height: calc(100% - 40px) !important;
+              overflow: hidden !important;
+              font-family: inherit !important;
+              position: relative !important;
+            }
+            /* Ensure all content respects the body boundaries */
             body > * {
               max-width: 100% !important;
-              max-height: calc(100vh - 30px) !important;
+              max-height: 100% !important;
+              position: relative !important;
             }
-            canvas, svg, div, section, main {
+            /* Handle plots and visualizations */
+            canvas, svg {
               max-width: 100% !important;
               max-height: 100% !important;
             }
@@ -287,8 +289,16 @@
             .plotly, .plot-container, #plot, #chart, .chart-container {
               width: 100% !important;
               height: 100% !important;
-              max-width: none !important;
-              max-height: none !important;
+              max-width: 100% !important;
+              max-height: 100% !important;
+            }
+            /* Ensure labels and text elements stay within bounds */
+            .plotly .main-svg, .plotly-graph-div {
+              overflow: visible !important;
+            }
+            /* Add some breathing room for labels */
+            .plotly .infolayer {
+              clip-path: inset(0px 10px 10px 10px) !important;
             }
           `;
           
