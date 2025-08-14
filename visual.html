@@ -16,14 +16,28 @@
       justify-content: flex-start;
       height: 100vh;
       padding-top: 20px;
+      position: relative;
     }
     .controls { text-align: center; }
     .sliders { display: none; margin-top: 10px; }
     .sliders div { margin-top: 10px; }
     iframe { width: 90%; height: 80vh; border: none; margin-top: 20px; }
+    #backButton {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 8px 16px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #backButton:hover { background: #666; }
   </style>
 </head>
 <body>
+  <button id="backButton" onclick="window.location.href='home.html'">Back</button>
   <div class="controls">
     <label><input type="radio" name="mode" value="supervised" checked> Supervised</label>
     <label style="margin-left:20px"><input type="radio" name="mode" value="semisupervised"> Semi Supervised</label>
@@ -77,7 +91,7 @@
         slidersDiv.style.display = 'block';
         const rna = values[rnaSlider.value];
         const prot = values[protSlider.value];
-        iframe.src = 'Semi%20Supervised/PCA3D_semi_r' + rna + '_p' + prot + '.html';
+        iframe.src = encodeURI('Semi Supervised/PCA3D_semi_r' + rna + '_p' + prot + '.html');
       }
     }
 
