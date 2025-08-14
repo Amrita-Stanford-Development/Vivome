@@ -77,6 +77,17 @@
       min-height: 500px;
     }
     
+    /* Force iframe content to fit properly */
+    iframe::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+    
     @media (max-width: 1200px) {
       iframe {
         width: 60%;
@@ -231,6 +242,9 @@
         const prot = values[protSlider.value];
         iframe.src = '3D Plots/PCA3D_semi_r' + rna + '_p' + prot + '.html';
       }
+      
+      // Re-inject CSS when iframe content changes
+      setTimeout(injectIframeCSS, 100);
     }
 
     modeRadios.forEach(r => r.addEventListener('change', updateIframe));
@@ -239,6 +253,58 @@
 
     updateSliderDisplays();
     updateIframe();
+
+    // Function to inject CSS into iframe content
+    function injectIframeCSS() {
+      const iframe = document.getElementById('contentFrame');
+      iframe.onload = function() {
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          
+          // Create style element
+          const style = iframeDoc.createElement('style');
+          style.textContent = `
+            * {
+              box-sizing: border-box;
+            }
+            html, body {
+              margin: 0 !important;
+              padding: 15px !important;
+              width: 100% !important;
+              height: 100% !important;
+              overflow: hidden !important;
+              font-family: inherit !important;
+            }
+            body > * {
+              max-width: 100% !important;
+              max-height: calc(100vh - 30px) !important;
+            }
+            canvas, svg, div, section, main {
+              max-width: 100% !important;
+              max-height: 100% !important;
+            }
+            /* Specific adjustments for common plot containers */
+            .plotly, .plot-container, #plot, #chart, .chart-container {
+              width: 100% !important;
+              height: 100% !important;
+              max-width: none !important;
+              max-height: none !important;
+            }
+          `;
+          
+          // Append to head
+          const head = iframeDoc.head || iframeDoc.getElementsByTagName('head')[0];
+          if (head) {
+            head.appendChild(style);
+          }
+        } catch (e) {
+          console.log('Cannot access iframe content due to cross-origin restrictions');
+        }
+      };
+    }
+
+    // Call the function initially and on each iframe update
+    injectIframeCSS();
 
     // --- Enhanced Scientific Background Canvas Animation ---
     const bgCanvas = document.getElementById('bgCanvas');
