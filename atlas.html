@@ -55,13 +55,31 @@
         }
         
         .atlas-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(0, 142, 204, 0.2);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 142, 204, 0.15);
             padding: 1rem 2rem;
-            box-shadow: 0 2px 20px rgba(0, 142, 204, 0.1);
+            box-shadow: 
+                0 4px 20px rgba(0, 142, 204, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.05);
             z-index: 100;
             padding-left: 100px;
+            position: relative;
+        }
+        
+        .atlas-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 142, 204, 0.3) 20%, 
+                rgba(0, 142, 204, 0.6) 50%, 
+                rgba(0, 142, 204, 0.3) 80%, 
+                transparent 100%);
         }
         
         .header-content {
@@ -87,6 +105,20 @@
             color: #008ECC;
             margin: 0;
             letter-spacing: 0.5px;
+            text-shadow: 0 2px 10px rgba(0, 142, 204, 0.15);
+            position: relative;
+        }
+        
+        .atlas-title h1::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #008ECC, transparent);
+            opacity: 0.6;
         }
         
         .header-stats {
@@ -105,6 +137,7 @@
             font-weight: 600;
             color: #008ECC;
             font-size: 1.1rem;
+            text-shadow: 0 1px 3px rgba(0, 142, 204, 0.2);
         }
         
         .main-content {
@@ -115,25 +148,66 @@
         
         .controls-panel {
             width: 300px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            border-right: 1px solid rgba(0, 142, 204, 0.2);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0, 142, 204, 0.15);
             padding: 1.5rem;
             overflow-y: auto;
-            box-shadow: 2px 0 20px rgba(0, 142, 204, 0.08);
+            box-shadow: 
+                2px 0 20px rgba(0, 142, 204, 0.06),
+                0 0 40px rgba(0, 142, 204, 0.03);
+            position: relative;
+        }
+        
+        .controls-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                rgba(0, 142, 204, 0.2) 20%, 
+                rgba(0, 142, 204, 0.4) 50%, 
+                rgba(0, 142, 204, 0.2) 80%, 
+                transparent 100%);
         }
         
         .control-section {
             margin-bottom: 2rem;
+            position: relative;
+            padding: 1rem;
+            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.7) 0%, rgba(248, 250, 252, 0.9) 100%);
+            border: 1px solid rgba(0, 142, 204, 0.08);
+            box-shadow: 
+                0 4px 15px rgba(0, 142, 204, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
         
         .control-section h3 {
             color: #008ECC;
             font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid rgba(0, 142, 204, 0.2);
-            padding-bottom: 0.5rem;
+            margin: -1rem -1rem 1rem -1rem;
+            padding: 0.8rem 1rem;
+            background: linear-gradient(135deg, rgba(0, 142, 204, 0.08) 0%, rgba(0, 142, 204, 0.03) 100%);
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid rgba(0, 142, 204, 0.1);
+            text-shadow: 0 1px 3px rgba(0, 142, 204, 0.2);
+            position: relative;
+        }
+        
+        .control-section h3::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            bottom: -1px;
+            width: 30px;
+            height: 2px;
+            background: #008ECC;
+            border-radius: 1px;
         }
         
         .toggle-group {
@@ -147,30 +221,43 @@
             align-items: center;
             justify-content: space-between;
             padding: 0.8rem;
-            background: rgba(0, 142, 204, 0.05);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%);
             border-radius: 8px;
             border: 1px solid rgba(0, 142, 204, 0.1);
             transition: all 0.3s ease;
             color: #4B4B4B;
+            box-shadow: 
+                0 2px 8px rgba(0, 142, 204, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
         
         .toggle-item:hover {
-            background: rgba(0, 142, 204, 0.1);
+            background: linear-gradient(135deg, rgba(0, 142, 204, 0.05) 0%, rgba(0, 142, 204, 0.08) 100%);
             border-color: rgba(0, 142, 204, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 
+                0 4px 15px rgba(0, 142, 204, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
         
         .toggle-switch {
             position: relative;
             width: 50px;
             height: 26px;
-            background: #ccc;
+            background: linear-gradient(145deg, #e0e0e0 0%, #ccc 100%);
             border-radius: 13px;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .toggle-switch.active {
-            background: #008ECC;
+            background: linear-gradient(145deg, #008ECC 0%, #0066A3 100%);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.2),
+                0 0 10px rgba(0, 142, 204, 0.3);
         }
         
         .toggle-switch::after {
@@ -180,9 +267,10 @@
             left: 2px;
             width: 22px;
             height: 22px;
-            background: white;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f8f8 100%);
             border-radius: 50%;
             transition: transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         
         .toggle-switch.active::after {
@@ -232,10 +320,15 @@
             transition: all 0.2s ease;
             cursor: pointer;
             color: #4B4B4B;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(248, 250, 252, 0.3) 100%);
+            border: 1px solid transparent;
         }
         
         .filter-item:hover {
-            background: rgba(0, 142, 204, 0.05);
+            background: linear-gradient(135deg, rgba(0, 142, 204, 0.05) 0%, rgba(0, 142, 204, 0.08) 100%);
+            border-color: rgba(0, 142, 204, 0.1);
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(0, 142, 204, 0.1);
         }
         
         .filter-checkbox {
@@ -245,10 +338,20 @@
             border-radius: 3px;
             cursor: pointer;
             position: relative;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f8f8 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-checkbox:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 8px rgba(0, 142, 204, 0.3);
         }
         
         .filter-checkbox.checked {
-            background: #008ECC;
+            background: linear-gradient(145deg, #008ECC 0%, #0066A3 100%);
+            border-color: #0066A3;
+            box-shadow: 0 0 10px rgba(0, 142, 204, 0.4);
         }
         
         .filter-checkbox.checked::after {
@@ -265,6 +368,9 @@
             height: 12px;
             border-radius: 50%;
             border: 1px solid rgba(0,0,0,0.2);
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.2),
+                inset 0 1px 1px rgba(255, 255, 255, 0.5);
         }
         
         .visualization-area {
@@ -605,15 +711,13 @@
             }
             
             setupControls() {
-                // Enhanced orbit controls with unified panning system
+                // Simple direct camera controls
                 let isMouseDown = false;
                 let isRightMouseDown = false;
                 let mouseX = 0, mouseY = 0;
                 let targetX = 0, targetY = 0;
                 let targetZoom = 50;
-                
-                // Unified pan offset system
-                let panOffsetX = 0, panOffsetY = 0, panOffsetZ = 0;
+                let isPanning = false;
                 
                 const canvas = this.renderer.domElement;
                 
@@ -621,17 +725,20 @@
                 canvas.addEventListener('mousedown', (event) => {
                     if (event.button === 0) { // Left mouse
                         isMouseDown = true;
+                        isPanning = false;
                         mouseX = event.clientX;
                         mouseY = event.clientY;
                     } else if (event.button === 2) { // Right mouse
                         isRightMouseDown = true;
+                        isPanning = true;
                         mouseX = event.clientX;
                         mouseY = event.clientY;
                     }
                 });
                 
                 canvas.addEventListener('mousemove', (event) => {
-                    if (isMouseDown) {
+                    if (isMouseDown && !isPanning) {
+                        // Rotation
                         const deltaX = event.clientX - mouseX;
                         const deltaY = event.clientY - mouseY;
                         
@@ -643,16 +750,23 @@
                         
                         mouseX = event.clientX;
                         mouseY = event.clientY;
-                    } else if (isRightMouseDown) {
-                        // Unified panning system - modify pan offsets
+                    } else if (isRightMouseDown && isPanning) {
+                        // Direct camera panning
                         const deltaX = event.clientX - mouseX;
                         const deltaY = event.clientY - mouseY;
                         
-                        const panSpeed = 0.1;
-                        // Right movement = positive offset (content moves right)
-                        // Up movement = positive offset (content moves up)  
-                        panOffsetX += deltaX * panSpeed;
-                        panOffsetY += deltaY * panSpeed;
+                        // Get camera vectors
+                        const panSpeed = targetZoom * 0.001;
+                        const cameraRight = new THREE.Vector3();
+                        const cameraUp = new THREE.Vector3();
+                        
+                        this.camera.updateMatrixWorld();
+                        cameraRight.setFromMatrixColumn(this.camera.matrixWorld, 0);
+                        cameraUp.setFromMatrixColumn(this.camera.matrixWorld, 1);
+                        
+                        // Move camera directly - RIGHT movement moves camera RIGHT (same direction)
+                        this.camera.position.add(cameraRight.multiplyScalar(deltaX * panSpeed));
+                        this.camera.position.add(cameraUp.multiplyScalar(-deltaY * panSpeed));
                         
                         mouseX = event.clientX;
                         mouseY = event.clientY;
@@ -665,128 +779,32 @@
                 canvas.addEventListener('mouseup', () => {
                     isMouseDown = false;
                     isRightMouseDown = false;
+                    isPanning = false;
                 });
                 
-                // Enhanced wheel event for touchpad support
+                // Zoom
                 canvas.addEventListener('wheel', (event) => {
                     event.preventDefault();
-                    
-                    // Detect touchpad vs mouse wheel
-                    const isTouchpad = Math.abs(event.deltaY) < 100 && event.deltaMode === 0;
-                    
-                    if (isTouchpad) {
-                        // Touchpad: support both zoom and pan
-                        if (event.ctrlKey || event.metaKey) {
-                            // Pinch zoom on touchpad
-                            targetZoom += event.deltaY * 0.02;
-                        } else if (event.shiftKey) {
-                            // Horizontal pan with shift + scroll
-                            const panSpeed = 0.5;
-                            panOffsetX += event.deltaX * panSpeed * 0.01;
-                        } else {
-                            // Check if it's a two-finger pan gesture
-                            if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
-                                // Horizontal pan
-                                const panSpeed = 0.5;
-                                panOffsetX += event.deltaX * panSpeed * 0.01;
-                            } else {
-                                // Vertical movement - check if panning or zooming
-                                if (Math.abs(event.deltaY) < 10) {
-                                    // Small movements = pan
-                                    const panSpeed = 0.5;
-                                    panOffsetY += event.deltaY * panSpeed * 0.01;
-                                } else {
-                                    // Larger movements = zoom
-                                    targetZoom += event.deltaY * 0.02;
-                                }
-                            }
-                        }
-                    } else {
-                        // Mouse wheel: just zoom
-                        targetZoom += event.deltaY * 0.01;
-                    }
-                    
+                    targetZoom += event.deltaY * 0.01;
                     targetZoom = Math.max(10, Math.min(200, targetZoom));
-                });
-                
-                // Touch events for mobile/tablet support
-                let touches = [];
-                let lastTouchDistance = 0;
-                
-                canvas.addEventListener('touchstart', (event) => {
-                    event.preventDefault();
-                    touches = Array.from(event.touches);
-                    
-                    if (touches.length === 1) {
-                        mouseX = touches[0].clientX;
-                        mouseY = touches[0].clientY;
-                        isMouseDown = true;
-                    } else if (touches.length === 2) {
-                        isMouseDown = false;
-                        const dx = touches[0].clientX - touches[1].clientX;
-                        const dy = touches[0].clientY - touches[1].clientY;
-                        lastTouchDistance = Math.sqrt(dx * dx + dy * dy);
-                    }
-                });
-                
-                canvas.addEventListener('touchmove', (event) => {
-                    event.preventDefault();
-                    touches = Array.from(event.touches);
-                    
-                    if (touches.length === 1 && isMouseDown) {
-                        // Single finger - rotate
-                        const deltaX = touches[0].clientX - mouseX;
-                        const deltaY = touches[0].clientY - mouseY;
-                        
-                        targetX += deltaX * 0.01;
-                        targetY += deltaY * 0.01;
-                        
-                        // Clamp vertical rotation to prevent flipping
-                        targetY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, targetY));
-                        
-                        mouseX = touches[0].clientX;
-                        mouseY = touches[0].clientY;
-                    } else if (touches.length === 2) {
-                        // Two fingers - zoom and pan
-                        const dx = touches[0].clientX - touches[1].clientX;
-                        const dy = touches[0].clientY - touches[1].clientY;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (lastTouchDistance > 0) {
-                            // Pinch zoom
-                            const zoomDelta = (lastTouchDistance - distance) * 0.1;
-                            targetZoom += zoomDelta;
-                            targetZoom = Math.max(10, Math.min(200, targetZoom));
-                        }
-                        
-                        lastTouchDistance = distance;
-                        
-                        // Two-finger pan (optional - can add center point panning here)
-                    }
-                });
-                
-                canvas.addEventListener('touchend', (event) => {
-                    event.preventDefault();
-                    isMouseDown = false;
-                    touches = [];
-                    lastTouchDistance = 0;
                 });
                 
                 canvas.addEventListener('contextmenu', (event) => {
                     event.preventDefault();
                 });
                 
-                // Animation loop for smooth camera movement with unified panning
+                // Orbit camera update (only when not panning)
                 const updateCamera = () => {
-                    // Calculate orbital position
-                    const radius = targetZoom;
-                    const baseX = radius * Math.sin(targetX) * Math.cos(targetY);
-                    const baseY = radius * Math.sin(targetY);
-                    const baseZ = radius * Math.cos(targetX) * Math.cos(targetY);
-                    
-                    // Apply pan offsets in screen space
-                    this.camera.position.set(baseX + panOffsetX, baseY + panOffsetY, baseZ + panOffsetZ);
-                    this.camera.lookAt(panOffsetX, panOffsetY, panOffsetZ); // Look at pan center, not origin
+                    if (!isPanning) {
+                        const radius = targetZoom;
+                        this.camera.position.x = radius * Math.sin(targetX) * Math.cos(targetY);
+                        this.camera.position.y = -radius * Math.sin(targetY); // Flip Y-axis
+                        this.camera.position.z = radius * Math.cos(targetX) * Math.cos(targetY);
+                        this.camera.lookAt(0, 0, 0);
+                        
+                        // Flip the camera's up vector to complete the flip
+                        this.camera.up.set(0, -1, 0);
+                    }
                     
                     requestAnimationFrame(updateCamera);
                 };
