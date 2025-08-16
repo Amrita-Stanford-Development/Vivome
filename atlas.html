@@ -145,44 +145,46 @@
         }
         
         .control-section {
-            margin-bottom: 2rem;
-            position: relative;
-            padding: 1rem;
-            border-radius: 12px;
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.7) 0%, rgba(248, 250, 252, 0.9) 100%);
-            border: 1px solid rgba(0, 142, 204, 0.08);
+            margin-bottom: 2rem !important;
+            position: relative !important;
+            padding: 1rem !important;
+            border-radius: 12px !important;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.7) 0%, rgba(248, 250, 252, 0.9) 100%) !important;
+            border: 1px solid rgba(0, 142, 204, 0.08) !important;
             box-shadow: 
-                0 4px 15px rgba(0, 142, 204, 0.04),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                0 8px 25px rgba(0, 142, 204, 0.12),
+                0 4px 15px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
         }
         
         .control-section::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
+            content: '' !important;
+            position: absolute !important;
+            top: -3px !important;
+            left: -3px !important;
+            right: -3px !important;
+            bottom: -3px !important;
             background: linear-gradient(145deg, 
-                rgba(0, 142, 204, 0.1) 0%, 
-                rgba(0, 200, 255, 0.15) 50%, 
-                rgba(0, 142, 204, 0.1) 100%);
-            border-radius: 14px;
-            opacity: 0.3;
-            filter: blur(8px);
-            z-index: -1;
+                rgba(0, 142, 204, 0.25) 0%, 
+                rgba(0, 200, 255, 0.35) 50%, 
+                rgba(0, 142, 204, 0.25) 100%) !important;
+            border-radius: 15px !important;
+            opacity: 0.6 !important;
+            filter: blur(10px) !important;
+            z-index: -1 !important;
+            pointer-events: none !important;
         }
         
         .control-section h3 {
-            color: #008ECC;
+            color: #ffffff !important;
             font-size: 1.1rem;
             font-weight: 600;
             margin: -1rem -1rem 1rem -1rem;
             padding: 0.8rem 1rem;
-            background: linear-gradient(135deg, rgba(0, 142, 204, 0.08) 0%, rgba(0, 142, 204, 0.03) 100%);
+            background: linear-gradient(135deg, #008ECC 0%, #0066A3 100%) !important;
             border-radius: 12px 12px 0 0;
-            border-bottom: 1px solid rgba(0, 142, 204, 0.1);
-            text-shadow: 0 1px 3px rgba(0, 142, 204, 0.2);
+            border-bottom: none;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
             position: relative;
         }
         
@@ -193,7 +195,7 @@
             bottom: -1px;
             width: 30px;
             height: 2px;
-            background: #008ECC;
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 1px;
         }
         
@@ -292,9 +294,110 @@
             color: white;
         }
         
+        /* Default Browser Scrollbar with Blue Color for Main Controls Panel */
+        .controls-panel {
+            width: 340px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0, 142, 204, 0.15);
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: 
+                2px 0 20px rgba(0, 142, 204, 0.06),
+                0 0 40px rgba(0, 142, 204, 0.03);
+            position: relative;
+            scrollbar-width: auto;
+            scrollbar-color: #008ECC #f0f0f0;
+        }
+        
+        .controls-panel::-webkit-scrollbar {
+            width: 17px; /* Default browser width */
+        }
+        
+        .controls-panel::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+        
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: #008ECC;
+            border-radius: 0;
+        }
+        
+        .controls-panel::-webkit-scrollbar-thumb:hover {
+            background: #0099E6;
+        }
+        
+        .controls-panel::-webkit-scrollbar-button {
+            background: #008ECC;
+            height: 17px;
+        }
+        
+        .controls-panel::-webkit-scrollbar-button:hover {
+            background: #0099E6;
+        }
+        
+        /* Custom Scrollbar Only for Cell Type Filters */
+        .cell-type-filters::-webkit-scrollbar {
+            width: 14px;
+        }
+        
+        .cell-type-filters::-webkit-scrollbar-track {
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.8) 0%, rgba(240, 245, 250, 0.9) 100%);
+            border-radius: 7px;
+            border: 1px solid rgba(0, 142, 204, 0.1);
+        }
+        
+        .cell-type-filters::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #008ECC 0%, #0066A3 100%);
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 2px 4px rgba(0, 142, 204, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .cell-type-filters::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #0099E6 0%, #0077BB 100%);
+            box-shadow: 
+                0 2px 6px rgba(0, 142, 204, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        .cell-type-filters::-webkit-scrollbar-button {
+            display: block;
+            height: 14px;
+            background: linear-gradient(180deg, #008ECC 0%, #0066A3 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        
+        .cell-type-filters::-webkit-scrollbar-button:start:decrement {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolygon fill='white' points='6,2 10,8 2,8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 8px 8px;
+        }
+        
+        .cell-type-filters::-webkit-scrollbar-button:end:increment {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolygon fill='white' points='6,10 2,4 10,4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 8px 8px;
+        }
+        
+        .cell-type-filters::-webkit-scrollbar-button:hover {
+            background-color: #0099E6;
+        }
+        
+        .cell-type-filters::-webkit-scrollbar-button:active {
+            background-color: #006BB3;
+        }
+        
         .cell-type-filters {
             max-height: 250px;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #008ECC rgba(248, 250, 252, 0.8);
         }
         
         .filter-item {
