@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VivOME Atlas - 3D Cell Visualization</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        *, *::before, *::after { 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #4B4B4B;
+            font-family: "Poppins", sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.4rem 0.8rem;
+            text-decoration: none;
+            color: #666;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 100, 100, 0.2);
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 1);
+            color: #333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+            border-color: rgba(100, 100, 100, 0.4);
+        }
+        
+        .atlas-container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+        
+        .atlas-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(0, 142, 204, 0.2);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 142, 204, 0.1);
+            z-index: 100;
+            padding-left: 100px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .atlas-title {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .atlas-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #008ECC;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-stats {
+            margin-left: auto;
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: #008ECC;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .controls-panel {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(0, 142, 204, 0.2);
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(0, 142, 204, 0.08);
+        }
+        
+        .control-section {
+            margin-bottom: 2rem;
+        }
+        
+        .control-section h3 {
+            color: #008ECC;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid rgba(0, 142, 204, 0.2);
+            padding-bottom: 0.5rem;
+        }
+        
+        .toggle-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem;
+            background: rgba(0, 142, 204, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 142, 204, 0.1);
+            transition: all 0.3s ease;
+            color: #4B4B4B;
+        }
+        
+        .toggle-item:hover {
+            background: rgba(0, 142, 204, 0.1);
+            border-color: rgba(0, 142, 204, 0.2);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #008ECC;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+        
+        .view-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        
+        .view-btn {
+            padding: 0.8rem;
+            background: rgba(0, 142, 204, 0.1);
+            border: 1px solid rgba(0, 142, 204, 0.2);
+            border-radius: 8px;
+            color: #008ECC;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .view-btn:hover {
+            background: rgba(0, 142, 204, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .view-btn.active {
+            background: #008ECC;
+            color: white;
+        }
+        
+        .cell-type-filters {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.6rem;
+            margin-bottom: 0.4rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            color: #4B4B4B;
+        }
+        
+        .filter-item:hover {
+            background: rgba(0, 142, 204, 0.05);
+        }
+        
+        .filter-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #008ECC;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .filter-checkbox.checked {
+            background: #008ECC;
+        }
+        
+        .filter-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            position: absolute;
+            top: -2px;
+            left: 1px;
+        }
+        
+        .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+        
+        .visualization-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        /* Force white theme for loading - override any inherited styles */
+        #loading-overlay {
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #008ECC !important;
+        }
+        
+        #loading-overlay .loading-text {
+            color: #008ECC !important;
+            text-shadow: none !important;
+        }
+        
+        #loading-overlay .loading-spinner {
+            border: 4px solid rgba(0, 142, 204, 0.2) !important;
+            border-top: 4px solid #008ECC !important;
+            box-shadow: none !important;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 15, 35, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 255, 255, 0.2);
+            border-top: 4px solid #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #00ffff;
+            font-weight: 500;
+            font-size: 1.1rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            margin: 1rem;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .scene-info {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #666;
+            backdrop-filter: blur(10px);
+        }
+        
+        @media (max-width: 1024px) {
+            .controls-panel {
+                width: 280px;
+            }
+            
+            .header-stats {
+                display: none;
+            }
+            
+            .atlas-header {
+                padding-left: 80px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .controls-panel {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+                order: 2;
+            }
+            
+            .visualization-area {
+                order: 1;
+                height: 60vh;
+            }
+            
+            .atlas-header {
+                padding: 1rem;
+                padding-left: 70px;
+            }
+            
+            .atlas-title h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">Back</a>
+    
+    <div class="atlas-container">
+        <header class="atlas-header">
+            <div class="header-content">
+                <div class="atlas-title">
+                    <h1>VivOME Atlas</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="rna-count">-</div>
+                        <div>RNA Cells</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="prot-count">-</div>
+                        <div>Protein Cells</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="class-count">-</div>
+                        <div>Cell Types</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="control-section">
+                    <h3>Modality Control</h3>
+                    <div class="toggle-group">
+                        <div class="toggle-item">
+                            <span>RNA Cells</span>
+                            <div class="toggle-switch active" id="rna-toggle"></div>
+                        </div>
+                        <div class="toggle-item">
+                            <span>Protein Cells</span>
+                            <div class="toggle-switch active" id="prot-toggle"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3>Cell Types</h3>
+                    <div class="cell-type-filters" id="cell-type-filters">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visualization-area">
+                <div class="loading-overlay" id="loading-overlay">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Loading VivOME Atlas data...</div>
+                </div>
+                <canvas id="three-canvas"></canvas>
+                <div class="tooltip" id="tooltip"></div>
+                <div class="scene-info" id="scene-info">
+                    Mouse: Rotate | Wheel: Zoom | Right-click: Pan
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class VivomeAtlasThree {
+            constructor() {
+                this.data = { rna: [], prot: [] };
+                this.cellTypes = new Set();
+                this.colorPalette = [
+                    '#00ffff', '#ff0040', '#00ff00', '#ff4000', '#8000ff',
+                    '#ffff00', '#ff00ff', '#40ff00', '#0080ff', '#ff8000',
+                    '#00c0ff', '#80ff00', '#00ff80', '#ff0000', '#0040ff',
+                    '#4080ff', '#ff1010', '#cc0000', '#ff2020', '#8040ff',
+                    '#40ff80', '#ff4040', '#990000', '#ffff40', '#ff3333'
+                ];
+                this.visibilityState = {
+                    rna: true,
+                    prot: true,
+                    cellTypes: new Set()
+                };
+                this.currentView = 'default';
+                
+                // Three.js objects
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.particles = { rna: null, prot: null };
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+                this.tooltip = document.getElementById('tooltip');
+                this.lastRaycastTime = 0; // For throttling raycasting
+                
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    // Ensure loading overlay is white theme from start
+                    const loadingOverlay = document.getElementById('loading-overlay');
+                    if (loadingOverlay) {
+                        loadingOverlay.style.background = 'rgba(255, 255, 255, 0.95)';
+                        loadingOverlay.style.color = '#008ECC';
+                    }
+                    
+                    this.setupThreeJS();
+                    await this.loadData();
+                    this.setupEventListeners();
+                    this.createVisualization();
+                    this.animate();
+                    this.hideLoading();
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+            
+            setupThreeJS() {
+                const canvas = document.getElementById('three-canvas');
+                const container = canvas.parentElement;
+                
+                // Scene with white background to match theme
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0xffffff);
+                
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(
+                    75, 
+                    container.clientWidth / container.clientHeight, 
+                    0.1, 
+                    1000
+                );
+                this.camera.position.set(50, 50, 50);
+                
+                // Renderer with enhanced settings for GPU utilization
+                this.renderer = new THREE.WebGLRenderer({ 
+                    canvas: canvas, 
+                    antialias: true,
+                    alpha: true,
+                    powerPreference: "high-performance" // Use dedicated GPU
+                });
+                this.renderer.setSize(container.clientWidth, container.clientHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                this.renderer.outputEncoding = THREE.sRGBEncoding;
+                this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                this.renderer.toneMappingExposure = 1.0;
+                
+                // Enhanced lighting setup for white background
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+                this.scene.add(ambientLight);
+                
+                // Key light
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(50, 50, 50);
+                directionalLight.castShadow = true;
+                directionalLight.shadow.mapSize.width = 2048;
+                directionalLight.shadow.mapSize.height = 2048;
+                directionalLight.shadow.camera.near = 0.1;
+                directionalLight.shadow.camera.far = 200;
+                directionalLight.shadow.camera.left = -50;
+                directionalLight.shadow.camera.right = 50;
+                directionalLight.shadow.camera.top = 50;
+                directionalLight.shadow.camera.bottom = -50;
+                this.scene.add(directionalLight);
+                
+                // Fill light
+                const fillLight = new THREE.DirectionalLight(0x87ceeb, 0.3);
+                fillLight.position.set(-30, 30, -30);
+                this.scene.add(fillLight);
+                
+                // Rim light for depth
+                const rimLight = new THREE.DirectionalLight(0xffffff, 0.2);
+                rimLight.position.set(0, 50, -50);
+                this.scene.add(rimLight);
+                
+                // Controls (simplified orbit controls)
+                this.setupControls();
+                
+                // Axis helper
+                const axesHelper = new THREE.AxesHelper(20);
+                this.scene.add(axesHelper);
+                
+                // Clean grid helper for white background
+                const gridHelper = new THREE.GridHelper(100, 20, 0x008ECC, 0xcccccc);
+                gridHelper.material.opacity = 0.2;
+                gridHelper.material.transparent = true;
+                this.scene.add(gridHelper);
+                
+                // Handle resize
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+            
+            setupControls() {
+                // Enhanced orbit controls with unified panning system
+                let isMouseDown = false;
+                let isRightMouseDown = false;
+                let mouseX = 0, mouseY = 0;
+                let targetX = 0, targetY = 0;
+                let targetZoom = 50;
+                
+                // Unified pan offset system
+                let panOffsetX = 0, panOffsetY = 0, panOffsetZ = 0;
+                
+                const canvas = this.renderer.domElement;
+                
+                // Mouse events
+                canvas.addEventListener('mousedown', (event) => {
+                    if (event.button === 0) { // Left mouse
+                        isMouseDown = true;
+                        mouseX = event.clientX;
+                        mouseY = event.clientY;
+                    } else if (event.button === 2) { // Right mouse
+                        isRightMouseDown = true;
+                        mouseX = event.clientX;
+                        mouseY = event.clientY;
+                    }
+                });
+                
+                canvas.addEventListener('mousemove', (event) => {
+                    if (isMouseDown) {
+                        const deltaX = event.clientX - mouseX;
+                        const deltaY = event.clientY - mouseY;
+                        
+                        targetX += deltaX * 0.01;
+                        targetY += deltaY * 0.01;
+                        
+                        // Clamp vertical rotation to prevent flipping
+                        targetY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, targetY));
+                        
+                        mouseX = event.clientX;
+                        mouseY = event.clientY;
+                    } else if (isRightMouseDown) {
+                        // Unified panning system - modify pan offsets
+                        const deltaX = event.clientX - mouseX;
+                        const deltaY = event.clientY - mouseY;
+                        
+                        const panSpeed = 0.1;
+                        // Right movement = positive offset (content moves right)
+                        // Up movement = positive offset (content moves up)  
+                        panOffsetX += deltaX * panSpeed;
+                        panOffsetY += deltaY * panSpeed;
+                        
+                        mouseX = event.clientX;
+                        mouseY = event.clientY;
+                    }
+                    
+                    // Update raycaster for tooltips
+                    this.updateMousePosition(event);
+                });
+                
+                canvas.addEventListener('mouseup', () => {
+                    isMouseDown = false;
+                    isRightMouseDown = false;
+                });
+                
+                // Enhanced wheel event for touchpad support
+                canvas.addEventListener('wheel', (event) => {
+                    event.preventDefault();
+                    
+                    // Detect touchpad vs mouse wheel
+                    const isTouchpad = Math.abs(event.deltaY) < 100 && event.deltaMode === 0;
+                    
+                    if (isTouchpad) {
+                        // Touchpad: support both zoom and pan
+                        if (event.ctrlKey || event.metaKey) {
+                            // Pinch zoom on touchpad
+                            targetZoom += event.deltaY * 0.02;
+                        } else if (event.shiftKey) {
+                            // Horizontal pan with shift + scroll
+                            const panSpeed = 0.5;
+                            panOffsetX += event.deltaX * panSpeed * 0.01;
+                        } else {
+                            // Check if it's a two-finger pan gesture
+                            if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+                                // Horizontal pan
+                                const panSpeed = 0.5;
+                                panOffsetX += event.deltaX * panSpeed * 0.01;
+                            } else {
+                                // Vertical movement - check if panning or zooming
+                                if (Math.abs(event.deltaY) < 10) {
+                                    // Small movements = pan
+                                    const panSpeed = 0.5;
+                                    panOffsetY += event.deltaY * panSpeed * 0.01;
+                                } else {
+                                    // Larger movements = zoom
+                                    targetZoom += event.deltaY * 0.02;
+                                }
+                            }
+                        }
+                    } else {
+                        // Mouse wheel: just zoom
+                        targetZoom += event.deltaY * 0.01;
+                    }
+                    
+                    targetZoom = Math.max(10, Math.min(200, targetZoom));
+                });
+                
+                // Touch events for mobile/tablet support
+                let touches = [];
+                let lastTouchDistance = 0;
+                
+                canvas.addEventListener('touchstart', (event) => {
+                    event.preventDefault();
+                    touches = Array.from(event.touches);
+                    
+                    if (touches.length === 1) {
+                        mouseX = touches[0].clientX;
+                        mouseY = touches[0].clientY;
+                        isMouseDown = true;
+                    } else if (touches.length === 2) {
+                        isMouseDown = false;
+                        const dx = touches[0].clientX - touches[1].clientX;
+                        const dy = touches[0].clientY - touches[1].clientY;
+                        lastTouchDistance = Math.sqrt(dx * dx + dy * dy);
+                    }
+                });
+                
+                canvas.addEventListener('touchmove', (event) => {
+                    event.preventDefault();
+                    touches = Array.from(event.touches);
+                    
+                    if (touches.length === 1 && isMouseDown) {
+                        // Single finger - rotate
+                        const deltaX = touches[0].clientX - mouseX;
+                        const deltaY = touches[0].clientY - mouseY;
+                        
+                        targetX += deltaX * 0.01;
+                        targetY += deltaY * 0.01;
+                        
+                        // Clamp vertical rotation to prevent flipping
+                        targetY = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, targetY));
+                        
+                        mouseX = touches[0].clientX;
+                        mouseY = touches[0].clientY;
+                    } else if (touches.length === 2) {
+                        // Two fingers - zoom and pan
+                        const dx = touches[0].clientX - touches[1].clientX;
+                        const dy = touches[0].clientY - touches[1].clientY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (lastTouchDistance > 0) {
+                            // Pinch zoom
+                            const zoomDelta = (lastTouchDistance - distance) * 0.1;
+                            targetZoom += zoomDelta;
+                            targetZoom = Math.max(10, Math.min(200, targetZoom));
+                        }
+                        
+                        lastTouchDistance = distance;
+                        
+                        // Two-finger pan (optional - can add center point panning here)
+                    }
+                });
+                
+                canvas.addEventListener('touchend', (event) => {
+                    event.preventDefault();
+                    isMouseDown = false;
+                    touches = [];
+                    lastTouchDistance = 0;
+                });
+                
+                canvas.addEventListener('contextmenu', (event) => {
+                    event.preventDefault();
+                });
+                
+                // Animation loop for smooth camera movement with unified panning
+                const updateCamera = () => {
+                    // Calculate orbital position
+                    const radius = targetZoom;
+                    const baseX = radius * Math.sin(targetX) * Math.cos(targetY);
+                    const baseY = radius * Math.sin(targetY);
+                    const baseZ = radius * Math.cos(targetX) * Math.cos(targetY);
+                    
+                    // Apply pan offsets in screen space
+                    this.camera.position.set(baseX + panOffsetX, baseY + panOffsetY, baseZ + panOffsetZ);
+                    this.camera.lookAt(panOffsetX, panOffsetY, panOffsetZ); // Look at pan center, not origin
+                    
+                    requestAnimationFrame(updateCamera);
+                };
+                updateCamera();
+            }
+            
+            updateMousePosition(event) {
+                const rect = this.renderer.domElement.getBoundingClientRect();
+                this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            }
+            
+            async loadData() {
+                try {
+                    const response = await fetch('./Atlas/atlas_coords_lat128.csv');
+                    if (!response.ok) {
+                        throw new Error(`Failed to load data: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const csvText = await response.text();
+                    const parsed = Papa.parse(csvText, {
+                        header: true,
+                        dynamicTyping: true,
+                        skipEmptyLines: true
+                    });
+                    
+                    if (parsed.errors.length > 0) {
+                        console.warn('CSV parsing warnings:', parsed.errors);
+                    }
+                    
+                    this.processData(parsed.data);
+                    this.updateStats();
+                    this.createCellTypeFilters();
+                    
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    throw new Error('Could not load atlas data. Please ensure the Atlas folder contains the required CSV files.');
+                }
+            }
+            
+            processData(rawData) {
+                this.data = { rna: [], prot: [] };
+                this.cellTypes.clear();
+                
+                // Find data bounds for normalization
+                let minX = Infinity, maxX = -Infinity;
+                let minY = Infinity, maxY = -Infinity;
+                let minZ = Infinity, maxZ = -Infinity;
+                
+                const validData = rawData.filter(row => 
+                    row.modality && !isNaN(row.PC1) && !isNaN(row.PC2) && !isNaN(row.PC3)
+                );
+                
+                validData.forEach(row => {
+                    const x = parseFloat(row.PC1);
+                    const y = parseFloat(row.PC2);
+                    const z = parseFloat(row.PC3);
+                    
+                    minX = Math.min(minX, x);
+                    maxX = Math.max(maxX, x);
+                    minY = Math.min(minY, y);
+                    maxY = Math.max(maxY, y);
+                    minZ = Math.min(minZ, z);
+                    maxZ = Math.max(maxZ, z);
+                });
+                
+                // Scale factor to fit in reasonable space
+                const scale = 80 / Math.max(maxX - minX, maxY - minY, maxZ - minZ);
+                
+                validData.forEach(row => {
+                    const point = {
+                        x: (parseFloat(row.PC1) - (minX + maxX) / 2) * scale,
+                        y: (parseFloat(row.PC2) - (minY + maxY) / 2) * scale,
+                        z: (parseFloat(row.PC3) - (minZ + maxZ) / 2) * scale,
+                        class_name: row.class_name || 'Unknown',
+                        class_idx: parseInt(row.class_idx) || 0,
+                        orig_index: parseInt(row.orig_index) || 0
+                    };
+                    
+                    const modality = row.modality.toLowerCase();
+                    if (modality === 'rna') {
+                        this.data.rna.push(point);
+                    } else if (modality === 'prot') {
+                        this.data.prot.push(point);
+                    }
+                    
+                    this.cellTypes.add(point.class_name);
+                });
+                
+                // Initialize all cell types as visible
+                this.cellTypes.forEach(cellType => {
+                    this.visibilityState.cellTypes.add(cellType);
+                });
+                
+                console.log(`Loaded ${this.data.rna.length} RNA cells and ${this.data.prot.length} protein cells`);
+                console.log(`Found ${this.cellTypes.size} cell types:`, Array.from(this.cellTypes));
+            }
+            
+            updateStats() {
+                document.getElementById('rna-count').textContent = this.data.rna.length.toLocaleString();
+                document.getElementById('prot-count').textContent = this.data.prot.length.toLocaleString();
+                document.getElementById('class-count').textContent = this.cellTypes.size;
+            }
+            
+            createCellTypeFilters() {
+                const container = document.getElementById('cell-type-filters');
+                container.innerHTML = '';
+                
+                Array.from(this.cellTypes).sort().forEach((cellType, index) => {
+                    const filterItem = document.createElement('div');
+                    filterItem.className = 'filter-item';
+                    
+                    const color = this.getColorForCellType(cellType);
+                    
+                    filterItem.innerHTML = `
+                        <div class="filter-checkbox checked" data-cell-type="${cellType}"></div>
+                        <div class="color-indicator" style="background-color: ${color}"></div>
+                        <span>${cellType}</span>
+                    `;
+                    
+                    filterItem.addEventListener('click', () => {
+                        const checkbox = filterItem.querySelector('.filter-checkbox');
+                        this.toggleCellType(cellType, checkbox);
+                    });
+                    
+                    container.appendChild(filterItem);
+                });
+            }
+            
+            getColorForCellType(cellType) {
+                const cellTypesArray = Array.from(this.cellTypes).sort();
+                const index = cellTypesArray.indexOf(cellType);
+                return this.colorPalette[index % this.colorPalette.length];
+            }
+            
+            toggleCellType(cellType, checkbox) {
+                if (this.visibilityState.cellTypes.has(cellType)) {
+                    this.visibilityState.cellTypes.delete(cellType);
+                    checkbox.classList.remove('checked');
+                } else {
+                    this.visibilityState.cellTypes.add(cellType);
+                    checkbox.classList.add('checked');
+                }
+                this.updateVisualization();
+            }
+            
+            setupEventListeners() {
+                // Modality toggles
+                document.getElementById('rna-toggle').addEventListener('click', () => {
+                    this.toggleModality('rna');
+                });
+                
+                document.getElementById('prot-toggle').addEventListener('click', () => {
+                    this.toggleModality('prot');
+                });
+                
+                // View buttons - removed since we removed camera views section
+                // document.querySelectorAll('.view-btn').forEach(btn => {
+                //     btn.addEventListener('click', () => {
+                //         this.setView(btn.dataset.view);
+                //         document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                //         btn.classList.add('active');
+                //     });
+                // });
+            }
+            
+            toggleModality(modality) {
+                this.visibilityState[modality] = !this.visibilityState[modality];
+                const toggle = document.getElementById(`${modality}-toggle`);
+                toggle.classList.toggle('active', this.visibilityState[modality]);
+                this.updateVisualization();
+            }
+            
+            createVisualization() {
+                // Remove existing particles
+                if (this.particles.rna) {
+                    this.scene.remove(this.particles.rna);
+                }
+                if (this.particles.prot) {
+                    this.scene.remove(this.particles.prot);
+                }
+                
+                // Create RNA particles with smaller size
+                if (this.visibilityState.rna) {
+                    this.particles.rna = this.createParticleSystem('rna', this.data.rna, 0.5);
+                    this.scene.add(this.particles.rna);
+                }
+                
+                // Create protein particles with larger size
+                if (this.visibilityState.prot) {
+                    this.particles.prot = this.createParticleSystem('prot', this.data.prot, 0.9);
+                    this.scene.add(this.particles.prot);
+                }
+            }
+            
+            createParticleSystem(modality, data, baseSize) {
+                const group = new THREE.Group();
+                
+                // Use instanced geometry with higher quality spheres
+                const sphereGeometry = new THREE.SphereGeometry(baseSize, 16, 12); // High-quality spheres
+                
+                // Group cells by color to reduce draw calls
+                const cellsByColor = {};
+                
+                data.forEach((point, index) => {
+                    if (this.visibilityState.cellTypes.has(point.class_name)) {
+                        const colorHex = this.getColorForCellType(point.class_name);
+                        
+                        if (!cellsByColor[colorHex]) {
+                            cellsByColor[colorHex] = [];
+                        }
+                        
+                        cellsByColor[colorHex].push({
+                            position: new THREE.Vector3(point.x, point.y, point.z),
+                            cellData: point,
+                            originalIndex: index
+                        });
+                    }
+                });
+                
+                // Create instanced meshes for each color
+                Object.entries(cellsByColor).forEach(([colorHex, cells]) => {
+                    if (cells.length === 0) return;
+                    
+                    const color = new THREE.Color(colorHex);
+                    
+                    // Create vibrant neon-like material with enhanced glow
+                    const material = new THREE.MeshStandardMaterial({
+                        color: color,
+                        metalness: 0.2,
+                        roughness: 0.3,
+                        transparent: modality === 'rna',
+                        opacity: modality === 'rna' ? 0.9 : 1.0,
+                        side: THREE.FrontSide,
+                        envMapIntensity: 0.8
+                    });
+                    
+                    // Strong emissive glow for neon effect
+                    material.emissive = new THREE.Color(color).multiplyScalar(0.15);
+                    
+                    const instancedMesh = new THREE.InstancedMesh(sphereGeometry, material, cells.length);
+                    instancedMesh.userData = { modality, cells };
+                    instancedMesh.castShadow = true;
+                    instancedMesh.receiveShadow = true;
+                    
+                    // Set transforms for each instance
+                    const matrix = new THREE.Matrix4();
+                    cells.forEach((cell, i) => {
+                        matrix.setPosition(cell.position);
+                        instancedMesh.setMatrixAt(i, matrix);
+                    });
+                    instancedMesh.instanceMatrix.needsUpdate = true;
+                    
+                    group.add(instancedMesh);
+                });
+                
+                return group;
+            }
+            
+            updateVisualization() {
+                this.createVisualization();
+            }
+            
+            setView(viewName) {
+                this.currentView = viewName;
+                
+                const cameraPositions = {
+                    default: { x: 50, y: 50, z: 50 },
+                    top: { x: 0, y: 100, z: 0 },
+                    side: { x: 100, y: 0, z: 0 },
+                    front: { x: 0, y: 0, z: 100 }
+                };
+                
+                const targetPos = cameraPositions[viewName] || cameraPositions.default;
+                
+                // Smooth camera transition
+                const startPos = this.camera.position.clone();
+                const endPos = new THREE.Vector3(targetPos.x, targetPos.y, targetPos.z);
+                
+                let progress = 0;
+                const animate = () => {
+                    progress += 0.05;
+                    if (progress <= 1) {
+                        this.camera.position.lerpVectors(startPos, endPos, this.easeInOutCubic(progress));
+                        this.camera.lookAt(0, 0, 0);
+                        requestAnimationFrame(animate);
+                    }
+                };
+                animate();
+            }
+            
+            easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                // Update raycaster for hover effects
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                
+                // Throttle raycasting for better performance
+                if (!this.lastRaycastTime || Date.now() - this.lastRaycastTime > 50) { // Only raycast every 50ms
+                    this.lastRaycastTime = Date.now();
+                    
+                    // Check for intersections with instanced meshes
+                    const intersects = [];
+                    if (this.particles.rna && this.visibilityState.rna) {
+                        this.particles.rna.children.forEach(instancedMesh => {
+                            const hits = this.raycaster.intersectObject(instancedMesh);
+                            intersects.push(...hits);
+                        });
+                    }
+                    if (this.particles.prot && this.visibilityState.prot) {
+                        this.particles.prot.children.forEach(instancedMesh => {
+                            const hits = this.raycaster.intersectObject(instancedMesh);
+                            intersects.push(...hits);
+                        });
+                    }
+                    
+                    // Handle tooltip
+                    if (intersects.length > 0) {
+                        const intersect = intersects[0];
+                        const instancedMesh = intersect.object;
+                        const instanceId = intersect.instanceId;
+                        
+                        if (instancedMesh.userData.cells && instancedMesh.userData.cells[instanceId]) {
+                            const cellInfo = instancedMesh.userData.cells[instanceId];
+                            const point = cellInfo.cellData;
+                            this.showTooltip(
+                                `${instancedMesh.userData.modality.toUpperCase()} Cell\n` +
+                                `Type: ${point.class_name}\n` +
+                                `Index: ${point.orig_index}\n` +
+                                `PC1: ${point.x.toFixed(2)}\n` +
+                                `PC2: ${point.y.toFixed(2)}\n` +
+                                `PC3: ${point.z.toFixed(2)}`
+                            );
+                        }
+                    } else {
+                        this.hideTooltip();
+                    }
+                }
+                
+                this.renderer.render(this.scene, this.camera);
+            }
+            
+            showTooltip(text) {
+                this.tooltip.style.opacity = '1';
+                this.tooltip.innerHTML = text.replace(/\n/g, '<br>');
+                
+                // Position tooltip near mouse
+                const rect = this.renderer.domElement.getBoundingClientRect();
+                const mouseX = (this.mouse.x + 1) * rect.width / 2;
+                const mouseY = (-this.mouse.y + 1) * rect.height / 2;
+                
+                this.tooltip.style.left = (mouseX + 10) + 'px';
+                this.tooltip.style.top = (mouseY - 10) + 'px';
+            }
+            
+            hideTooltip() {
+                this.tooltip.style.opacity = '0';
+            }
+            
+            onWindowResize() {
+                const container = this.renderer.domElement.parentElement;
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(width, height);
+            }
+            
+            hideLoading() {
+                const overlay = document.getElementById('loading-overlay');
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 300);
+            }
+            
+            showError(message) {
+                const overlay = document.getElementById('loading-overlay');
+                overlay.style.background = 'rgba(255, 255, 255, 0.95)'; // Ensure white background
+                overlay.innerHTML = `
+                    <div class="error-message">
+                        <h3 style="color: #dc3545; margin-top: 0;">Error Loading Atlas</h3>
+                        <p style="color: #666;">${message}</p>
+                        <p style="color: #666;">Please check that the Atlas folder contains the required CSV files.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize the atlas when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new VivomeAtlasThree();
+        });
+    </script>
+</body>
+</html>

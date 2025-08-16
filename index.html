@@ -178,14 +178,14 @@
     <div class="left">
       <div class="left-panel">
         <h1 id="title">VivOME</h1>
-        <p id="subtitle">A Joint Cell Atlas for Single-Cell Omics</p>
+        <p id="subtitle">A Living Joint Latent Atlas for Single-Cell Omics</p>
       </div>
     </div>
     <div class="right">
       <canvas id="scene"></canvas>
       <div id="label0" class="overlay-label">Manuscript</div>
-      <div id="label1" class="overlay-label">Visual</div>
-      <div id="label2" class="overlay-label">Roadmap</div>
+      <div id="label1" class="overlay-label">Visuals</div>
+      <div id="label2" class="overlay-label">Live Atlas</div>
       <div id="label3" class="overlay-label">Miscellaneous</div>
     </div>
   </div>
@@ -678,16 +678,43 @@
       bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
       const time = Date.now() * 0.00085; // Reduced by 15%
       
-      // Draw gradient base with breathing blue tint effect
+      // Draw gradient base with breathing blue tint effect and liquid-like waves
       const breathingIntensity = 0.5 + 0.3 * Math.sin(time * 0.8); // Breathing cycle
-      const blueShift = breathingIntensity * 0.15; // Subtle blue shift
+      const waveIntensity1 = 0.4 + 0.2 * Math.sin(time * 0.5); // Slow wave
+      const waveIntensity2 = 0.3 + 0.15 * Math.sin(time * 0.7 + Math.PI / 3); // Different phase wave
       
+      // Create liquid-like blue gradient with moderate blue tones
       const gradient = bgCtx.createLinearGradient(0, 0, bgCanvas.width, bgCanvas.height);
-      gradient.addColorStop(0, `hsl(210, ${5 + blueShift * 100}%, 97%)`); // Slight blue breathing
-      gradient.addColorStop(0.3, `hsl(215, ${3 + blueShift * 80}%, 96%)`);
-      gradient.addColorStop(0.7, `hsl(220, ${2 + blueShift * 60}%, 95%)`);
-      gradient.addColorStop(1, `hsl(225, ${1 + blueShift * 40}%, 94%)`);
+      
+      // Moderate bluish tones - max 50% saturation
+      const baseHue = 210; // Light blue hue
+      const baseSat = 12 + (breathingIntensity * 20) + (waveIntensity1 * 8); // 12-40% saturation range
+      const waveOffset = waveIntensity2 * 5; // Moderate wave variation
+      
+      gradient.addColorStop(0, `hsl(${baseHue}, ${Math.min(baseSat + waveOffset, 50)}%, ${94 + breathingIntensity * 2}%)`);
+      gradient.addColorStop(0.25, `hsl(${baseHue + 2}, ${Math.min(baseSat * 0.9 + waveOffset, 45)}%, ${93 + breathingIntensity * 1.5}%)`);
+      gradient.addColorStop(0.5, `hsl(${baseHue + 5}, ${Math.min(baseSat * 0.8 + waveIntensity1 * 8, 50)}%, ${92 + breathingIntensity * 1}%)`);
+      gradient.addColorStop(0.75, `hsl(${baseHue + 3}, ${Math.min(baseSat * 0.7 + waveOffset, 45)}%, ${91 + breathingIntensity * 0.8}%)`);
+      gradient.addColorStop(1, `hsl(${baseHue + 8}, ${Math.min(baseSat * 0.6 + waveIntensity2 * 10, 50)}%, ${90 + breathingIntensity * 0.5}%)`);
+      
       bgCtx.fillStyle = gradient;
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+      
+      // Add moderate liquid shimmer effect
+      const shimmerGradient = bgCtx.createRadialGradient(
+        bgCanvas.width * (0.3 + 0.2 * Math.sin(time * 0.3)), 
+        bgCanvas.height * (0.4 + 0.15 * Math.cos(time * 0.25)),
+        0,
+        bgCanvas.width * (0.3 + 0.2 * Math.sin(time * 0.3)), 
+        bgCanvas.height * (0.4 + 0.15 * Math.cos(time * 0.25)),
+        bgCanvas.width * 0.8
+      );
+      
+      shimmerGradient.addColorStop(0, `hsla(220, ${Math.min(35, 35)}%, 96%, ${0.04 + waveIntensity1 * 0.03})`);
+      shimmerGradient.addColorStop(0.5, `hsla(215, ${Math.min(30, 30)}%, 94%, ${0.02 + waveIntensity2 * 0.02})`);
+      shimmerGradient.addColorStop(1, 'hsla(210, 20%, 92%, 0)');
+      
+      bgCtx.fillStyle = shimmerGradient;
       bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
       
       // Draw flow field
@@ -786,7 +813,7 @@
 
     const radii = [28, 14, 7, 4];
     const colors = ['#D9534F', '#5CB85C', '#0275D8', '#F0AD4E'];
-    const urls = ['manuscript.html', 'visual.html', 'roadmap.html', 'miscellaneous.html'];
+    const urls = ['manuscript.html', 'visual.html', 'atlas.html', 'miscellaneous.html'];
 
     function overlapsWithLabels(x, y, radius) {
       const canvasRect = canvas.getBoundingClientRect();
